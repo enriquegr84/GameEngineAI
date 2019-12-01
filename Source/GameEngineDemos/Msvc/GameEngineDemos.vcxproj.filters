@@ -1,34 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="..\TriangleDemoApp.h" />
-    <ClInclude Include="..\GameDemo\GameDemoEvents.h">
-      <Filter>Demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameDemo\GameDemoManager.h">
-      <Filter>Demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameDemo\GameDemoNetwork.h">
-      <Filter>Demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameDemo\GameDemoResources.h">
-      <Filter>Demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameDemo\GameDemoStd.h">
-      <Filter>Demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameDemo\GameDemoView.h">
-      <Filter>Demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameDemo\GameDemoApp.h">
-      <Filter>Demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameDemo\GameDemo.h">
-      <Filter>Demo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameDemo\GameDemoCameraController.h">
-      <Filter>Demo</Filter>
-    </ClInclude>
     <ClInclude Include="..\Quake\Quake.h">
       <Filter>Quake</Filter>
     </ClInclude>
@@ -119,9 +91,6 @@
     <ClInclude Include="..\Quake\QuakeAIView.h">
       <Filter>Quake</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameDemo\GameDemoAIManager.h">
-      <Filter>Demo</Filter>
-    </ClInclude>
     <ClInclude Include="..\Quake\QuakeAIManager.h">
       <Filter>Quake</Filter>
     </ClInclude>
@@ -130,28 +99,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\TriangleDemoApp.cpp" />
-    <ClCompile Include="..\GameDemo\GameDemoEvents.cpp">
-      <Filter>Demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameDemo\GameDemoManager.cpp">
-      <Filter>Demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameDemo\GameDemoStd.cpp">
-      <Filter>Demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameDemo\GameDemoView.cpp">
-      <Filter>Demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameDemo\GameDemoApp.cpp">
-      <Filter>Demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameDemo\GameDemo.cpp">
-      <Filter>Demo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameDemo\GameDemoCameraController.cpp">
-      <Filter>Demo</Filter>
-    </ClCompile>
     <ClCompile Include="..\Quake\Quake.cpp">
       <Filter>Quake</Filter>
     </ClCompile>
@@ -224,9 +171,6 @@
     <ClCompile Include="..\Quake\QuakeAIView.cpp">
       <Filter>Quake</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameDemo\GameDemoAIManager.cpp">
-      <Filter>Demo</Filter>
-    </ClCompile>
     <ClCompile Include="..\Quake\QuakeAIManager.cpp">
       <Filter>Quake</Filter>
     </ClCompile>
@@ -235,9 +179,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Demo">
-      <UniqueIdentifier>{ce6ead9a-75e3-4556-82f9-64ef1a39a749}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Quake">
       <UniqueIdentifier>{8b320331-9d33-4f90-9d5f-797a46e33574}</UniqueIdentifier>
     </Filter>

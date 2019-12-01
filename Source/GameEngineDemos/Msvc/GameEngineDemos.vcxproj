@@ -199,16 +199,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\GameDemo\GameDemo.h" />
-    <ClInclude Include="..\GameDemo\GameDemoAIManager.h" />
-    <ClInclude Include="..\GameDemo\GameDemoApp.h" />
-    <ClInclude Include="..\GameDemo\GameDemoCameraController.h" />
-    <ClInclude Include="..\GameDemo\GameDemoEvents.h" />
-    <ClInclude Include="..\GameDemo\GameDemoManager.h" />
-    <ClInclude Include="..\GameDemo\GameDemoNetwork.h" />
-    <ClInclude Include="..\GameDemo\GameDemoResources.h" />
-    <ClInclude Include="..\GameDemo\GameDemoStd.h" />
-    <ClInclude Include="..\GameDemo\GameDemoView.h" />
     <ClInclude Include="..\Quake\Actors\AmmoPickup.h" />
     <ClInclude Include="..\Quake\Actors\ArmorPickup.h" />
     <ClInclude Include="..\Quake\Actors\BaseFire.h" />
@@ -241,17 +231,8 @@
     <ClInclude Include="..\Quake\QuakeResources.h" />
     <ClInclude Include="..\Quake\QuakeStd.h" />
     <ClInclude Include="..\Quake\QuakeView.h" />
-    <ClInclude Include="..\TriangleDemoApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\GameDemo\GameDemo.cpp" />
-    <ClCompile Include="..\GameDemo\GameDemoAIManager.cpp" />
-    <ClCompile Include="..\GameDemo\GameDemoApp.cpp" />
-    <ClCompile Include="..\GameDemo\GameDemoCameraController.cpp" />
-    <ClCompile Include="..\GameDemo\GameDemoEvents.cpp" />
-    <ClCompile Include="..\GameDemo\GameDemoManager.cpp" />
-    <ClCompile Include="..\GameDemo\GameDemoStd.cpp" />
-    <ClCompile Include="..\GameDemo\GameDemoView.cpp" />
     <ClCompile Include="..\Quake\Actors\AmmoPickup.cpp" />
     <ClCompile Include="..\Quake\Actors\ArmorPickup.cpp" />
     <ClCompile Include="..\Quake\Actors\GrenadeFire.cpp" />
@@ -278,7 +259,6 @@
     <ClCompile Include="..\Quake\QuakePlayerController.cpp" />
     <ClCompile Include="..\Quake\QuakeStd.cpp" />
     <ClCompile Include="..\Quake\QuakeView.cpp" />
-    <ClCompile Include="..\TriangleDemoApp.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
