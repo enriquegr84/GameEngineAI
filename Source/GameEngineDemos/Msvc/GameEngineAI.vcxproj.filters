@@ -99,9 +99,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Quake\Quake.cpp">
-      <Filter>Quake</Filter>
-    </ClCompile>
     <ClCompile Include="..\Quake\QuakeApp.cpp">
       <Filter>Quake</Filter>
     </ClCompile>
@@ -175,6 +172,9 @@
       <Filter>Quake</Filter>
     </ClCompile>
     <ClCompile Include="..\Quake\QuakeAIProcess.cpp">
+      <Filter>Quake</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Quake\Quake.cpp">
       <Filter>Quake</Filter>
     </ClCompile>
   </ItemGroup>

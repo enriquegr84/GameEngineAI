@@ -247,3 +247,4 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /Source/GameEngineDemos/Msvc/My Advisor Results - GameEngineDemos
+/Source/GameEngine/Msvc/My Advisor Results - GameEngine
