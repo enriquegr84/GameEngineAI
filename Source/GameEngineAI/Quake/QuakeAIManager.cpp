@@ -337,7 +337,7 @@ void QuakeAIManager::LoadPathingGraph(const eastl::wstring& path)
 
 			pathNode->AddArc(pathArc);
 		}
-
+		
 		for (CerealTypes::ClusterNode cluster : node.clusters)
 		{
 			int clusterType = cluster.type;
@@ -353,7 +353,7 @@ void QuakeAIManager::LoadPathingGraph(const eastl::wstring& path)
 			if (clusterActor != INVALID_ACTOR_ID)
 				pathNode->AddClusterActor(pathCluster);
 		}
-
+		
 		for (CerealTypes::TransitionNode transition : node.transitions)
 		{
 			unsigned int transitionId = transition.id;
