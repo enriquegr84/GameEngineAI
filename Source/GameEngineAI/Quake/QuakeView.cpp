@@ -372,9 +372,8 @@ bool QuakeMainMenuUI::OnInit()
 	settings->AddItem(L"Key D - Move right");
 	settings->AddItem(L"Key C - Move down");
 	settings->AddItem(L"Key Space - Move up");
-	settings->AddItem(L"Key 5 - Create map");
-	settings->AddItem(L"Key 6 - Graphics wireframe");
-	settings->AddItem(L"Key 7 - Physics wireframe");
+	settings->AddItem(L"Key 6 - Create map");
+	settings->AddItem(L"Key 7 - Graphics wireframe");
 	settings->AddItem(L"Key 8 - Control/Follow player");
 	settings->AddItem(L"Key 9 - Control camera");
 
@@ -1070,7 +1069,7 @@ bool QuakeHumanView::OnMsgProc( const Event& evt )
 			{
 				switch (evt.mKeyInput.mKey)
 				{
-					case KEY_KEY_5:
+					case KEY_KEY_6:
 					{
 						GameApplication* gameApp = (GameApplication*)Application::App;
 						const GameViewList& gameViews = gameApp->GetGameViews();
@@ -1086,14 +1085,6 @@ bool QuakeHumanView::OnMsgProc( const Event& evt )
 							}
 						}
 
-						return true;
-					}
-
-					case KEY_KEY_6:
-					{
-						mDebugMode = mDebugMode ? DM_OFF : DM_WIREFRAME;
-						for (auto child : mScene->GetRootNode()->GetChildren())
-							child->SetDebugState(mDebugMode);
 						return true;
 					}
 

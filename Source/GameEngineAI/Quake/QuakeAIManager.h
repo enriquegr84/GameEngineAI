@@ -172,7 +172,7 @@ struct NodeState
 		{
 			items.push_back(item);
 			itemAmount[item] = state.itemAmount.at(item);
-			itemDistance[item] = state.itemDistance.at(item);
+			itemWeight[item] = state.itemWeight.at(item);
 		}
 	}
 
@@ -209,12 +209,12 @@ struct NodeState
 
 		items.clear();
 		itemAmount.clear();
-		itemDistance.clear();
+		itemWeight.clear();
 		for (eastl::shared_ptr<Actor> item : state.items)
 		{
 			items.push_back(item);
 			itemAmount[item] = state.itemAmount[item];
-			itemDistance[item] = state.itemDistance[item];
+			itemWeight[item] = state.itemWeight[item];
 		}
 	}
 
@@ -222,12 +222,12 @@ struct NodeState
 	{
 		items.clear();
 		itemAmount.clear();
-		itemDistance.clear();
+		itemWeight.clear();
 		for (eastl::shared_ptr<Actor> item : state.items)
 		{
 			items.push_back(item);
 			itemAmount[item] = state.itemAmount[item];
-			itemDistance[item] = state.itemDistance[item];
+			itemWeight[item] = state.itemWeight[item];
 		}
 	}
 
@@ -235,7 +235,7 @@ struct NodeState
 	{
 		items.clear();
 		itemAmount.clear();
-		itemDistance.clear();
+		itemWeight.clear();
 	}
 
 	bool valid;
@@ -254,7 +254,7 @@ struct NodeState
 
 	eastl::vector<eastl::shared_ptr<Actor>> items;
 	eastl::map<eastl::shared_ptr<Actor>, int> itemAmount;
-	eastl::map<eastl::shared_ptr<Actor>, float> itemDistance;
+	eastl::map<eastl::shared_ptr<Actor>, float> itemWeight;
 };
 
 //--------------------------------------------------------------------------------------------------------
@@ -267,22 +267,22 @@ class AIPlanNode
 	PathingNode* mPathingNode;  // pointer to the pathing node from the pathing graph
 	PathingCluster* mGoalCluster;  // pointer to the goal cluster
 	bool mClosed;  // the node is closed if it's already been processed
-	float mDistance;  // distance of the entire path up to this point
+	float mWeight;  // weight of the entire path up to this point
 	float mHeuristic;  // heuristic of the entire path up to this point
 
 public:
 	explicit AIPlanNode(PathingNode* pNode, AIPlanNode* pPrevNode, 
-		PathingCluster* pGoalCluster, float distance, float heuristic);
+		PathingCluster* pGoalCluster, float weight, float heuristic);
 	AIPlanNode* GetPrev(void) const { return mPrevNode; }
 	PathingNode* GetPathingNode(void) const { return mPathingNode; }
 	PathingCluster* GetGoalCluster(void) const { return mGoalCluster; }
 	void GetPlanActors(eastl::map<ActorId, float>& planActors);
 	bool IsClosed(void) const { return mClosed; }
 	float GetHeuristic(void) const { return mHeuristic; }
-	float GetDistance(void) const { return mDistance; }
+	float GetWeight(void) const { return mWeight; }
 
 	void UpdateNode(PathingNode* pNode, AIPlanNode* pPrev,
-		PathingCluster* pGoalCluster, float distance, float heuristic);
+		PathingCluster* pGoalCluster, float weight, float heuristic);
 	void SetClosed(bool toClose = true) { mClosed = toClose; }
 	bool IsBetterChoiceThan(AIPlanNode* pRight) { return (mHeuristic > pRight->GetHeuristic()); }
 };
@@ -315,7 +315,7 @@ protected:
 private:
 
 	AIPlanNode* AddToOpenSet(PathingNode* pNode, AIPlanNode* pPrevNode,
-		PathingCluster* pGoalCluster, float distance, float heuristic);
+		PathingCluster* pGoalCluster, float weight, float heuristic);
 	void AddToClosedSet(AIPlanNode* pNode);
 	void InsertNode(AIPlanNode* pNode);
 	void RebuildPath(AIPlanNode* pGoalNode, PathingArcVec& planPath);
@@ -378,6 +378,7 @@ protected:
 	void PrintLogError(eastl::string log);
 	void PrintLogInformation(eastl::string log);
 	void PrintLogInformationDetails(eastl::string log);
+	void PrintLogInformationExtraDetails(eastl::string log);
 
 	float CalculateHeuristicItems(NodeState& playerState);
 	void CalculateHeuristic(NodeState& playerState, NodeState& otherPlayerState);
@@ -397,6 +398,7 @@ private:
 	std::ofstream mLogError;
 	std::ofstream mLogInformation;
 	std::ofstream mLogInformationDetails;
+	std::ofstream mLogInformationExtraDetails;
 
 	void SimulateJump(PathingNode* pNode);
 	void SimulateMovement(PathingNode* pNode);

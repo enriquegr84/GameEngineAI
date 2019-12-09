@@ -374,7 +374,7 @@ protected:
 		TransparentNodeEntry(Node* n, const Vector4<float>& cameraPos)
 			: mNode(n)
 		{
-			//mDistance = mNode->Get()->ToWorld().GetTranslation().GetDistanceFromSQ(cameraPos);
+			//mWeight = mNode->Get()->ToWorld().GetTranslation().GetDistanceFromSQ(cameraPos);
 		}
 
 		bool operator < (const TransparentNodeEntry& other) const
@@ -407,8 +407,8 @@ protected:
 		{
 			mNode = n;
 			/*
-			mDistance = mNode->Get()->ToWorld().GetTranslation().GetDistanceFromSQ(fromPosition);
-			mDistance -= mNode->GetBoundingBox().GetExtent().GetLengthSQ() * 0.5;
+			mWeight = mNode->Get()->ToWorld().GetTranslation().GetDistanceFromSQ(fromPosition);
+			mWeight -= mNode->GetBoundingBox().GetExtent().GetLengthSQ() * 0.5;
 			*/
 		}
 
