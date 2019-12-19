@@ -172,7 +172,6 @@ QuakeAIManager::QuakeAIManager() : AIManager()
 	mLogError = std::ofstream("error.txt", std::ios::out);
 	mLogInformation = std::ofstream("info.txt", std::ios::out);
 	mLogInformationDetails = std::ofstream("infodetails.txt", std::ios::out);
-	mLogInformationExtraDetails = std::ofstream("infoextradetails.txt", std::ios::out);
 }   // QuakeAIManager
 
 //-----------------------------------------------------------------------------
@@ -182,7 +181,6 @@ QuakeAIManager::~QuakeAIManager()
 	mLogError.close();
 	mLogInformation.close();
 	mLogInformationDetails.close();
-	mLogInformationExtraDetails.close();
 }   // ~QuakeAIManager
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1015,11 +1013,6 @@ void QuakeAIManager::PrintLogInformationDetails(eastl::string info)
 	mLogInformationDetails << info.c_str();
 }
 
-void QuakeAIManager::PrintLogInformationExtraDetails(eastl::string info)
-{
-	mLogInformationExtraDetails << info.c_str();
-}
-
 float QuakeAIManager::CalculateHeuristicItems(NodeState& playerState)
 {
 	float heuristicFactor = 0.f;
@@ -1549,18 +1542,10 @@ bool QuakeAIManager::CanItemBeGrabbed(ActorId itemId, float itemTime, NodeState&
 			if (respawnItemTime - itemTime <= 0)
 			{
 				if (playerState.ammo[pWeaponPickup->GetCode()] >= 200)
-				{
-					PrintLogInformationExtraDetails(" skip weapon, ammo state " +
-						eastl::to_string(playerState.ammo[pWeaponPickup->GetCode()]) + "  ");
 					return false;		// can't hold any more
-				}
 
 				return true;
 			}
-
-			PrintLogInformationExtraDetails(" skip weapon, respawn time " +
-				eastl::to_string(respawnItemTime) + ", item time " + 
-				eastl::to_string(itemTime) + "  ");
 		}
 		else if (pItemActor->GetType() == "Ammo")
 		{
@@ -1570,18 +1555,10 @@ bool QuakeAIManager::CanItemBeGrabbed(ActorId itemId, float itemTime, NodeState&
 			if (respawnItemTime - itemTime <= 0)
 			{
 				if (playerState.ammo[pAmmoPickup->GetCode()] >= 200)
-				{
-					PrintLogInformationExtraDetails(" skip ammo, ammo state " +
-						eastl::to_string(playerState.ammo[pAmmoPickup->GetCode()]) + "  ");
 					return false;		// can't hold any more
-				}
 
 				return true;
 			}
-
-			PrintLogInformationExtraDetails(" skip ammo, respawn time " +
-				eastl::to_string(respawnItemTime) + ", item time " + 
-				eastl::to_string(itemTime) + "  ");
 		}
 		else if (pItemActor->GetType() == "Armor")
 		{
@@ -1591,18 +1568,10 @@ bool QuakeAIManager::CanItemBeGrabbed(ActorId itemId, float itemTime, NodeState&
 			if (respawnItemTime - itemTime <= 0)
 			{
 				if (playerState.stats[STAT_ARMOR] >= playerState.stats[STAT_MAX_HEALTH] * 2)
-				{
-					PrintLogInformationExtraDetails("skip max armor, armor state " +
-						eastl::to_string(playerState.stats[STAT_ARMOR]) + "  ");
 					return false;		// can't hold any more
-				}
 
 				return true;
 			}
-
-			PrintLogInformationExtraDetails(" skip armor, respawn time " +
-				eastl::to_string(respawnItemTime) + ", item time " + 
-				eastl::to_string(itemTime) + "  ");
 		}
 		else if (pItemActor->GetType() == "Health")
 		{
@@ -1616,28 +1585,16 @@ bool QuakeAIManager::CanItemBeGrabbed(ActorId itemId, float itemTime, NodeState&
 				if (pHealthPickup->GetAmount() == 5 || pHealthPickup->GetAmount() == 100)
 				{
 					if (playerState.stats[STAT_HEALTH] >= playerState.stats[STAT_MAX_HEALTH] * 2)
-					{
-						PrintLogInformationExtraDetails("skip health, health state " +
-							eastl::to_string(playerState.stats[STAT_HEALTH]) + "  ");
 						return false;		// can't hold any more
-					}
 
 					return true;
 				}
 
 				if (playerState.stats[STAT_HEALTH] >= playerState.stats[STAT_MAX_HEALTH])
-				{
-					PrintLogInformationExtraDetails("skip max health, health state " +
-						eastl::to_string(playerState.stats[STAT_HEALTH]) + "  ");
 					return false;		// can't hold any more
-				}
 
 				return true;
 			}
-
-			PrintLogInformationExtraDetails(" skip health, respawn time " +
-				eastl::to_string(respawnItemTime) + ", item time " + 
-				eastl::to_string(itemTime) + "  ");
 		}
 	}
 	return false;

@@ -447,10 +447,6 @@ void QuakeLogic::SpawnActorDelegate(BaseEventDataPtr pEventData)
 		if (pTransformComponent)
 		{
 			SelectSpawnPoint(pTransformComponent->GetTransform().GetTranslation(), spawnTransform);
-			if (pPlayerActor->GetId() == 64)
-				spawnTransform.SetTranslation(240.f, -1136.f, 272.f);
-			else
-				spawnTransform.SetTranslation(1120.f, 224.f, 88.f);
 			pTransformComponent->SetTransform(spawnTransform);
 
 			QuakeAIManager* aiManager =
@@ -1658,9 +1654,10 @@ void Damage(int damage, int dflags, int mod,
 	if (take)
 	{
 		target->GetState().stats[STAT_HEALTH] -= take;
+		/*
 		if (target->GetState().stats[STAT_HEALTH] <= 0)
 			target->GetState().stats[STAT_HEALTH] = 1;
-
+		*/
 		if (target->GetState().stats[STAT_HEALTH] <= 0)
 		{
 			//target->GetState().flags |= FL_NO_KNOCKBACK;

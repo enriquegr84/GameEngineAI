@@ -220,36 +220,8 @@ void QuakeAIProcess::Simulation(
 
 	eastl::map<ActorId, float> pathActors;
 	eastl::map<ActorId, float>::iterator itActor;
-
-	mAIManager->PrintLogInformationExtraDetails("\n player path actors : ");
 	for (itActor = actors.begin(); itActor != actors.end(); itActor++)
 	{
-		eastl::shared_ptr<Actor> pItemActor(GameLogic::Get()->GetActor((*itActor).first).lock());
-		if (pItemActor->GetType() == "Weapon")
-		{
-			eastl::shared_ptr<WeaponPickup> pWeaponPickup =
-				pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Ammo")
-		{
-			eastl::shared_ptr<AmmoPickup> pAmmoPickup =
-				pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Armor")
-		{
-			eastl::shared_ptr<ArmorPickup> pArmorPickup =
-				pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("armor " + eastl::to_string(pArmorPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Health")
-		{
-			eastl::shared_ptr<HealthPickup> pHealthPickup =
-				pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("health " + eastl::to_string(pHealthPickup->GetCode()) + " ");
-		}
-
 		if (mAIManager->CanItemBeGrabbed((*itActor).first, (*itActor).second, playerState))
 		{
 			if (otherActors.find((*itActor).first) != otherActors.end())
@@ -264,35 +236,6 @@ void QuakeAIProcess::Simulation(
 		}
 	}
 	mAIManager->PickupItems(playerNodeState, pathActors, mExcludeActors);
-
-	mAIManager->PrintLogInformationExtraDetails("\n player actors taken : ");
-	for (eastl::shared_ptr<Actor> pItemActor : playerNodeState.items)
-	{
-		if (pItemActor->GetType() == "Weapon")
-		{
-			eastl::shared_ptr<WeaponPickup> pWeaponPickup =
-				pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Ammo")
-		{
-			eastl::shared_ptr<AmmoPickup> pAmmoPickup =
-				pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Armor")
-		{
-			eastl::shared_ptr<ArmorPickup> pArmorPickup =
-				pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("armor " + eastl::to_string(pArmorPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Health")
-		{
-			eastl::shared_ptr<HealthPickup> pHealthPickup =
-				pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("health " + eastl::to_string(pHealthPickup->GetCode()) + " ");
-		}
-	}
 
 	NodeState otherPlayerNodeState(otherPlayerState);
 	otherPlayerNodeState.plan.AddPlanPath(otherPlayerPathPlan);
@@ -317,118 +260,8 @@ void QuakeAIProcess::Simulation(
 	}
 	mAIManager->PickupItems(otherPlayerNodeState, otherPathActors, mExcludeActors);
 
-	mAIManager->PrintLogInformationExtraDetails("\n other player path actors : ");
-	for (itActor = otherActors.begin(); itActor != otherActors.end(); itActor++)
-	{
-		eastl::shared_ptr<Actor> pItemActor(GameLogic::Get()->GetActor((*itActor).first).lock());
-		if (pItemActor->GetType() == "Weapon")
-		{
-			eastl::shared_ptr<WeaponPickup> pWeaponPickup =
-				pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Ammo")
-		{
-			eastl::shared_ptr<AmmoPickup> pAmmoPickup =
-				pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Armor")
-		{
-			eastl::shared_ptr<ArmorPickup> pArmorPickup =
-				pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("armor " + eastl::to_string(pArmorPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Health")
-		{
-			eastl::shared_ptr<HealthPickup> pHealthPickup =
-				pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("health " + eastl::to_string(pHealthPickup->GetCode()) + " ");
-		}
-	}
-
-	mAIManager->PrintLogInformationExtraDetails("\n other player evaluate actors : ");
-	for (itActor = otherPathActors.begin(); itActor != otherPathActors.end(); itActor++)
-	{
-		eastl::shared_ptr<Actor> pItemActor(GameLogic::Get()->GetActor((*itActor).first).lock());
-		if (pItemActor->GetType() == "Weapon")
-		{
-			eastl::shared_ptr<WeaponPickup> pWeaponPickup =
-				pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Ammo")
-		{
-			eastl::shared_ptr<AmmoPickup> pAmmoPickup =
-				pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Armor")
-		{
-			eastl::shared_ptr<ArmorPickup> pArmorPickup =
-				pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("armor " + eastl::to_string(pArmorPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Health")
-		{
-			eastl::shared_ptr<HealthPickup> pHealthPickup =
-				pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("health " + eastl::to_string(pHealthPickup->GetCode()) + " ");
-		}
-	}
-
-	mAIManager->PrintLogInformationExtraDetails("\n other player actors taken : ");
-	for (eastl::shared_ptr<Actor> pItemActor : otherPlayerNodeState.items)
-	{
-		if (pItemActor->GetType() == "Weapon")
-		{
-			eastl::shared_ptr<WeaponPickup> pWeaponPickup =
-				pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Ammo")
-		{
-			eastl::shared_ptr<AmmoPickup> pAmmoPickup =
-				pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Armor")
-		{
-			eastl::shared_ptr<ArmorPickup> pArmorPickup =
-				pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("armor " + eastl::to_string(pArmorPickup->GetCode()) + " ");
-		}
-		else if (pItemActor->GetType() == "Health")
-		{
-			eastl::shared_ptr<HealthPickup> pHealthPickup =
-				pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
-			mAIManager->PrintLogInformationExtraDetails("health " + eastl::to_string(pHealthPickup->GetCode()) + " ");
-		}
-	}
-
 	//we calculate the heuristic
 	mAIManager->CalculateHeuristic(playerNodeState, otherPlayerNodeState);
-
-	mAIManager->PrintLogInformationExtraDetails("\n player heuristic : " +
-		eastl::to_string(playerNodeState.heuristic) + " ");
-	if (playerNodeState.weapon != WP_NONE)
-	{
-		mAIManager->PrintLogInformationExtraDetails("weapon : " +
-			eastl::to_string(playerNodeState.weapon) + " ");
-		mAIManager->PrintLogInformationExtraDetails("damage : " +
-			eastl::to_string(playerNodeState.damage[playerNodeState.weapon - 1]) + " ");
-	}
-
-	mAIManager->PrintLogInformationExtraDetails("\n other player heuristic : " +
-		eastl::to_string(otherPlayerNodeState.heuristic) + " ");
-	if (otherPlayerNodeState.weapon != WP_NONE)
-	{
-		mAIManager->PrintLogInformationExtraDetails("weapon : " +
-			eastl::to_string(otherPlayerNodeState.weapon) + " ");
-		mAIManager->PrintLogInformationExtraDetails("damage : " +
-			eastl::to_string(otherPlayerNodeState.damage[otherPlayerNodeState.weapon - 1]) + " ");
-	}
-	mAIManager->PrintLogInformationExtraDetails("\n");
 
 	playerState.Copy(playerNodeState);
 	otherPlayerState.Copy(otherPlayerNodeState);
@@ -554,14 +387,10 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 	for (playerClusterIdx = 0; playerClusterIdx < clusterSize; playerClusterIdx++)
 	{
 		PathingCluster* playerCluster = playerClusters[playerClusterIdx];
-		mAIManager->PrintLogInformationExtraDetails("\n player cluster : " +
-			eastl::to_string(playerCluster->GetTarget()->GetCluster()) + " ");
 
 		for (otherPlayerClusterIdx = 0; otherPlayerClusterIdx < otherClusterSize; otherPlayerClusterIdx++)
 		{
 			PathingCluster* otherPlayerCluster = otherPlayerClusters[otherPlayerClusterIdx];
-			mAIManager->PrintLogInformationDetails("other player cluster : " +
-				eastl::to_string(otherPlayerCluster->GetTarget()->GetCluster()) + " ");
 
 			NodeState state(playerState);
 			NodeState otherState(otherPlayerState);
@@ -581,9 +410,6 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 		for (playerClusterIdx = 0; playerClusterIdx < clusterSize; playerClusterIdx++)
 		{
 			PathingCluster* playerCluster = playerClusters[playerClusterIdx];
-			mAIManager->PrintLogInformationExtraDetails("\n player cluster : " +
-				eastl::to_string(playerCluster->GetTarget()->GetCluster()) + 
-				" current other player cluster");
 
 			NodeState state(playerState);
 			NodeState otherState(otherPlayerState);
@@ -605,9 +431,6 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 		for (otherPlayerClusterIdx = 0; otherPlayerClusterIdx < otherClusterSize; otherPlayerClusterIdx++)
 		{
 			PathingCluster* otherPlayerCluster = otherPlayerClusters[otherPlayerClusterIdx];
-			mAIManager->PrintLogInformationDetails("\n other player cluster : " +
-				eastl::to_string(otherPlayerCluster->GetTarget()->GetCluster()) +
-				" current player cluster");
 
 			NodeState state(playerState);
 			NodeState otherState(otherPlayerState);
@@ -627,9 +450,6 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 	if (playerState.valid && otherPlayerState.valid &&
 		playerState.plan.path.size() && otherPlayerState.plan.path.size())
 	{
-		mAIManager->PrintLogInformationExtraDetails(
-			"\n curren player cluster :  current other player cluster");
-
 		NodeState state(playerState);
 		NodeState otherState(otherPlayerState);
 
@@ -1057,12 +877,17 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 
 	//In game theory, Nash equilibrium is used for simultaneous decision making and it says that it is needed to
 	//take into account the decision-making of the others in order to make the best decision possible. That being said, 
-	//we will take the results from both players minimax and decide what is the best solution. 
+	//we will take the results from both players minimax and decide what is the best solution for each player. 
 	if (mPlayerState.valid && mOtherPlayerState.valid)
 	{
+		mAIManager->PrintLogInformation("\n game theory decision-making ");
+
 		PathingCluster* otherPlayerClusterState = NULL;
 		if (playerCluster != NULL)
 		{
+			mAIManager->PrintLogInformation("\n player decision tree target cluster : " +
+				eastl::to_string(playerCluster->GetTarget()->GetCluster()) + " ");
+
 			mOtherPlayerState.Copy(otherPlayerState);
 			mOtherPlayerState.heuristic = FLT_MAX;
 			mOtherPlayerState.valid = false;
@@ -1101,6 +926,8 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 		}
 		else
 		{
+			mAIManager->PrintLogInformation("\n same player decision tree target cluster");
+
 			mOtherPlayerState.Copy(otherPlayerState);
 			mOtherPlayerState.heuristic = FLT_MAX;
 			mOtherPlayerState.valid = false;
@@ -1141,6 +968,9 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 		PathingCluster* playerClusterState = NULL;
 		if (otherPlayerCluster != NULL)
 		{
+			mAIManager->PrintLogInformation("\n other player decision tree target cluster : " +
+				eastl::to_string(otherPlayerCluster->GetTarget()->GetCluster()) + " ");
+
 			mPlayerState.Copy(playerState);
 			mPlayerState.heuristic = -FLT_MAX;
 			mPlayerState.valid = false;
@@ -1179,6 +1009,8 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 		}
 		else
 		{
+			mAIManager->PrintLogInformation("\n same other player decision tree target cluster");
+
 			mPlayerState.Copy(playerState);
 			mPlayerState.heuristic = -FLT_MAX;
 			mPlayerState.valid = false;
@@ -1293,12 +1125,6 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 				eastl::to_string(playerState.plan.node->GetPos()[2]) + " ");
 			mAIManager->PrintLogInformation("\n player same plan cluster : " +
 				eastl::to_string(playerState.plan.node->GetCluster()) + " ");
-			mAIManager->PrintLogInformation("\n player target position : " +
-				eastl::to_string(playerCluster->GetTarget()->GetPos()[0]) + " " +
-				eastl::to_string(playerCluster->GetTarget()->GetPos()[1]) + " " +
-				eastl::to_string(playerCluster->GetTarget()->GetPos()[2]) + " ");
-			mAIManager->PrintLogInformation("\n player target cluster : " +
-				eastl::to_string(playerCluster->GetTarget()->GetCluster()) + " ");
 
 			for (auto currentClusterPlanState : currentClusterPlanStates)
 			{
@@ -1604,12 +1430,10 @@ void QuakeAIProcess::ThreadProc( )
 					eastl::to_string(realTime.Second) + "\n";
 				mAIManager->PrintLogInformation(info);
 				mAIManager->PrintLogInformationDetails(info);
-				mAIManager->PrintLogInformationExtraDetails(info);
 
 				info = "\n blue player ai guessing (red)";
 				mAIManager->PrintLogInformation(info);
 				mAIManager->PrintLogInformationDetails(info);
-				mAIManager->PrintLogInformationExtraDetails(info);
 				for (ActorId player : players[GV_HUMAN])
 				{
 					eastl::shared_ptr<PlayerActor> pHumanPlayer =
@@ -1620,6 +1444,29 @@ void QuakeAIProcess::ThreadProc( )
 					playerState.weapon = mAIManager->GetPlayerWeapon(player);
 					playerState.weaponTarget = mAIManager->GetPlayerWeaponTarget(player);
 					mAIManager->GetPlayerPlan(player, playerState.plan);
+					
+					if (playerState.plan.path.size() > 1)
+					{
+						//search for the starting node closest to the actual player position
+						eastl::shared_ptr<TransformComponent> pTransformComponent(
+							pHumanPlayer->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+						if (pTransformComponent)
+						{
+							Vector3<float> playerPosition = pTransformComponent->GetPosition();
+							if (Length(playerState.plan.path[0]->GetNode()->GetPos() - playerPosition) >
+								Length(playerState.plan.path[1]->GetNode()->GetPos() - playerPosition))
+							{
+								PathingNode* playerNode = playerState.plan.path[0]->GetNode();
+								unsigned int playerAction = playerState.plan.path[0]->GetType();
+								if (playerAction != GAT_PUSH && playerAction != GAT_TELEPORT)
+								{
+									playerState.plan.node = playerNode;
+									playerState.plan.path.erase(playerState.plan.path.begin());
+								}
+							}
+						}
+					}
+
 					for (ActorId aiPlayer : players[GV_AI])
 					{
 						NodeState aiPlayerState;
@@ -1636,13 +1483,11 @@ void QuakeAIProcess::ThreadProc( )
 				info = "\n blue player heuristic " + eastl::to_string(mPlayerState.heuristic) + " ";
 				mAIManager->PrintLogInformation(info);
 				mAIManager->PrintLogInformationDetails(info);
-				mAIManager->PrintLogInformationExtraDetails(info);
 				if (!mPlayerState.items.empty())
 				{
 					info = " actors : ";
 					mAIManager->PrintLogInformation(info);
 					mAIManager->PrintLogInformationDetails(info);
-					mAIManager->PrintLogInformationExtraDetails(info);
 				}
 				for (eastl::shared_ptr<Actor> pItemActor : mPlayerState.items)
 				{
@@ -1654,7 +1499,6 @@ void QuakeAIProcess::ThreadProc( )
 						info = "weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ";
 						mAIManager->PrintLogInformation(info);
 						mAIManager->PrintLogInformationDetails(info);
-						mAIManager->PrintLogInformationExtraDetails(info);
 					}
 					else if (pItemActor->GetType() == "Ammo")
 					{
@@ -1664,7 +1508,6 @@ void QuakeAIProcess::ThreadProc( )
 						info = "ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ";
 						mAIManager->PrintLogInformation(info);
 						mAIManager->PrintLogInformationDetails(info);
-						mAIManager->PrintLogInformationExtraDetails(info);
 					}
 					else if (pItemActor->GetType() == "Armor")
 					{
@@ -1674,7 +1517,6 @@ void QuakeAIProcess::ThreadProc( )
 						info = "armor " + eastl::to_string(pArmorPickup->GetCode()) + " ";
 						mAIManager->PrintLogInformation(info);
 						mAIManager->PrintLogInformationDetails(info);
-						mAIManager->PrintLogInformationExtraDetails(info);
 					}
 					else if (pItemActor->GetType() == "Health")
 					{
@@ -1684,7 +1526,6 @@ void QuakeAIProcess::ThreadProc( )
 						info = "health " + eastl::to_string(pHealthPickup->GetCode()) + " ";
 						mAIManager->PrintLogInformation(info);
 						mAIManager->PrintLogInformationDetails(info);
-						mAIManager->PrintLogInformationExtraDetails(info);
 					}
 				}
 				if (mPlayerState.weapon != WP_NONE)
@@ -1692,25 +1533,21 @@ void QuakeAIProcess::ThreadProc( )
 					info = "weapon : " +  eastl::to_string(mPlayerState.weapon) + " ";
 					mAIManager->PrintLogInformation(info);
 					mAIManager->PrintLogInformationDetails(info);
-					mAIManager->PrintLogInformationExtraDetails(info);
 
 					info = "damage : " +
 						eastl::to_string(mPlayerState.damage[mPlayerState.weapon - 1]) + " ";
 					mAIManager->PrintLogInformation(info);
 					mAIManager->PrintLogInformationDetails(info);
-					mAIManager->PrintLogInformationExtraDetails(info);
 				}
 				else
 				{
 					info = "weapon : 0 ";
 					mAIManager->PrintLogInformation(info);
 					mAIManager->PrintLogInformationDetails(info);
-					mAIManager->PrintLogInformationExtraDetails(info);
 
 					info = "damage : 0 ";
 					mAIManager->PrintLogInformation(info);
 					mAIManager->PrintLogInformationDetails(info);
-					mAIManager->PrintLogInformationExtraDetails(info);
 				}
 
 				mAIManager->SetPlayerGuessState(mOtherPlayerState.player, mOtherPlayerState);
@@ -1722,7 +1559,6 @@ void QuakeAIProcess::ThreadProc( )
 				info = "\n\n red player ai guessing (blue)";
 				mAIManager->PrintLogInformation(info);
 				mAIManager->PrintLogInformationDetails(info);
-				mAIManager->PrintLogInformationExtraDetails(info);
 				for (ActorId aiPlayer : players[GV_AI])
 				{
 					eastl::shared_ptr<PlayerActor> pAIPlayer =
@@ -1733,6 +1569,29 @@ void QuakeAIProcess::ThreadProc( )
 					aiPlayerState.weapon = mAIManager->GetPlayerWeapon(aiPlayer);
 					aiPlayerState.weaponTarget = mAIManager->GetPlayerWeaponTarget(aiPlayer);
 					mAIManager->GetPlayerPlan(aiPlayer, aiPlayerState.plan);
+
+					if (aiPlayerState.plan.path.size() > 1)
+					{
+						//search for the starting node closest to the actual ai player position
+						eastl::shared_ptr<TransformComponent> pTransformComponent(
+							pAIPlayer->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+						if (pTransformComponent)
+						{
+							Vector3<float> aiPlayerPosition = pTransformComponent->GetPosition();
+							if (Length(aiPlayerState.plan.path[0]->GetNode()->GetPos() - aiPlayerPosition) >
+								Length(aiPlayerState.plan.path[1]->GetNode()->GetPos() - aiPlayerPosition))
+							{
+								PathingNode* aiPlayerNode = aiPlayerState.plan.path[0]->GetNode();
+								unsigned int aiPlayerAction = aiPlayerState.plan.path[0]->GetType();
+								if (aiPlayerAction != GAT_PUSH && aiPlayerAction != GAT_TELEPORT)
+								{
+									aiPlayerState.plan.node = aiPlayerNode;
+									aiPlayerState.plan.path.erase(aiPlayerState.plan.path.begin());
+								}
+							}
+						}
+					}
+
 					for (ActorId player : players[GV_HUMAN])
 					{
 						NodeState playerState;
@@ -1749,13 +1608,11 @@ void QuakeAIProcess::ThreadProc( )
 				info = "\n red player heuristic " + eastl::to_string(mOtherPlayerState.heuristic) + " ";
 				mAIManager->PrintLogInformation(info);
 				mAIManager->PrintLogInformationDetails(info);
-				mAIManager->PrintLogInformationExtraDetails(info);
 				if (!mOtherPlayerState.items.empty())
 				{
 					info = " actors : ";
 					mAIManager->PrintLogInformation(info);
 					mAIManager->PrintLogInformationDetails(info);
-					mAIManager->PrintLogInformationExtraDetails(info);
 				}
 				for (eastl::shared_ptr<Actor> pItemActor : mOtherPlayerState.items)
 				{
@@ -1767,7 +1624,6 @@ void QuakeAIProcess::ThreadProc( )
 						info = "weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ";
 						mAIManager->PrintLogInformation(info);
 						mAIManager->PrintLogInformationDetails(info);
-						mAIManager->PrintLogInformationExtraDetails(info);
 					}
 					else if (pItemActor->GetType() == "Ammo")
 					{
@@ -1777,7 +1633,6 @@ void QuakeAIProcess::ThreadProc( )
 						info = "ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ";
 						mAIManager->PrintLogInformation(info);
 						mAIManager->PrintLogInformationDetails(info);
-						mAIManager->PrintLogInformationExtraDetails(info);
 					}
 					else if (pItemActor->GetType() == "Armor")
 					{
@@ -1787,7 +1642,6 @@ void QuakeAIProcess::ThreadProc( )
 						info = "armor " + eastl::to_string(pArmorPickup->GetCode()) + " ";
 						mAIManager->PrintLogInformation(info);
 						mAIManager->PrintLogInformationDetails(info);
-						mAIManager->PrintLogInformationExtraDetails(info);
 					}
 					else if (pItemActor->GetType() == "Health")
 					{
@@ -1797,7 +1651,6 @@ void QuakeAIProcess::ThreadProc( )
 						info = "health " + eastl::to_string(pHealthPickup->GetCode()) + " ";
 						mAIManager->PrintLogInformation(info);
 						mAIManager->PrintLogInformationDetails(info);
-						mAIManager->PrintLogInformationExtraDetails(info);
 					}
 				}
 				if (mOtherPlayerState.weapon != WP_NONE)
@@ -1805,24 +1658,20 @@ void QuakeAIProcess::ThreadProc( )
 					info = "weapon : " + eastl::to_string(mOtherPlayerState.weapon) + " ";
 					mAIManager->PrintLogInformation(info);
 					mAIManager->PrintLogInformationDetails(info);
-					mAIManager->PrintLogInformationExtraDetails(info);
 
 					info = "damage : " + eastl::to_string(mOtherPlayerState.damage[mOtherPlayerState.weapon - 1]) + " ";
 					mAIManager->PrintLogInformation(info);
 					mAIManager->PrintLogInformationDetails(info);
-					mAIManager->PrintLogInformationExtraDetails(info);
 				}
 				else
 				{
 					info = "weapon : 0 ";
 					mAIManager->PrintLogInformation(info);
 					mAIManager->PrintLogInformationDetails(info);
-					mAIManager->PrintLogInformationExtraDetails(info);
 
 					info = "damage : 0 ";
 					mAIManager->PrintLogInformation(info);
 					mAIManager->PrintLogInformationDetails(info);
-					mAIManager->PrintLogInformationExtraDetails(info);
 				}
 
 				mAIManager->SetPlayerGuessState(mPlayerState.player, mPlayerState);
