@@ -129,7 +129,7 @@ void QuakeAIView::Stationary(unsigned long deltaMs)
 {
 	Vector3<float> position = mAbsoluteTransform.GetTranslation();
 	Matrix4x4<float> rotation = Rotation<4, float>(
-		AxisAngle<4, float>(Vector4<float>::Unit(2), mYaw * (float)GE_C_DEG_TO_RAD));
+		AxisAngle<4, float>(Vector4<float>::Unit(YAW), mYaw * (float)GE_C_DEG_TO_RAD));
 
 	// This will give us the "look at" vector 
 	// in world space - we'll use that to move.
@@ -174,7 +174,7 @@ void QuakeAIView::Stationary(unsigned long deltaMs)
 void QuakeAIView::Cliff()
 {
 	Matrix4x4<float> rotation = Rotation<4, float>(
-		AxisAngle<4, float>(Vector4<float>::Unit(2), mYaw * (float)GE_C_DEG_TO_RAD));
+		AxisAngle<4, float>(Vector4<float>::Unit(YAW), mYaw * (float)GE_C_DEG_TO_RAD));
 
 	// This will give us the "look at" vector 
 	// in world space - we'll use that to move.
@@ -195,7 +195,7 @@ void QuakeAIView::Cliff()
 	Transform end;
 	end.SetRotation(rotation);
 	end.SetTranslation(mAbsoluteTransform.GetTranslationW1() + 
-		atWorld * 10.f - Vector4<float>::Unit(2) * 300.f);
+		atWorld * 10.f - Vector4<float>::Unit(YAW) * 300.f);
 
 	Vector3<float> collision, collisionNormal;
 	collision = end.GetTranslation();
@@ -212,7 +212,7 @@ void QuakeAIView::Cliff()
 		for (int angle = 1; angle <= 110; angle++)
 		{
 			rotation = Rotation<4, float>(
-				AxisAngle<4, float>(Vector4<float>::Unit(2),
+				AxisAngle<4, float>(Vector4<float>::Unit(YAW),
 				(mYaw + angle * sign) * (float)GE_C_DEG_TO_RAD));
 
 			atWorld = Vector4<float>::Unit(PITCH); // forward vector
@@ -225,7 +225,7 @@ void QuakeAIView::Cliff()
 			start.SetRotation(rotation);
 			end.SetRotation(rotation);
 			end.SetTranslation(mAbsoluteTransform.GetTranslationW1() +
-				atWorld * 100.f - Vector4<float>::Unit(2) * 300.f);
+				atWorld * 100.f - Vector4<float>::Unit(YAW) * 300.f);
 
 			collision = end.GetTranslation();
 			ActorId actorId = GameLogic::Get()->GetGamePhysics()->CastRay(
@@ -243,7 +243,7 @@ void QuakeAIView::Cliff()
 		for (int angle = 1; angle <= 110; angle++)
 		{
 			rotation = Rotation<4, float>(
-				AxisAngle<4, float>(Vector4<float>::Unit(2),
+				AxisAngle<4, float>(Vector4<float>::Unit(YAW),
 				(mYaw + angle * sign) * (float)GE_C_DEG_TO_RAD));
 
 			atWorld = Vector4<float>::Unit(PITCH); // forward vector
@@ -256,7 +256,7 @@ void QuakeAIView::Cliff()
 			start.SetRotation(rotation);
 			end.SetRotation(rotation);
 			end.SetTranslation(mAbsoluteTransform.GetTranslationW1() +
-				atWorld * 100.f - Vector4<float>::Unit(2) * 300.f);
+				atWorld * 100.f - Vector4<float>::Unit(YAW) * 300.f);
 
 			collision = end.GetTranslation();
 			ActorId actorId = GameLogic::Get()->GetGamePhysics()->CastRay(
@@ -280,7 +280,7 @@ void QuakeAIView::Avoidance(unsigned long deltaMs)
 {
 	Vector3<float> position = mAbsoluteTransform.GetTranslation();
 	Matrix4x4<float> rotation = Rotation<4, float>(
-		AxisAngle<4, float>(Vector4<float>::Unit(2), mYaw * (float)GE_C_DEG_TO_RAD));
+		AxisAngle<4, float>(Vector4<float>::Unit(YAW), mYaw * (float)GE_C_DEG_TO_RAD));
 
 	// This will give us the "look at" vector 
 	// in world space - we'll use that to move.
@@ -317,7 +317,7 @@ void QuakeAIView::Avoidance(unsigned long deltaMs)
 		for (int angle = 1; angle <= 90; angle++)
 		{
 			rotation = Rotation<4, float>(
-				AxisAngle<4, float>(Vector4<float>::Unit(2),
+				AxisAngle<4, float>(Vector4<float>::Unit(YAW),
 				(mYaw + angle * sign) * (float)GE_C_DEG_TO_RAD));
 
 			atWorld = Vector4<float>::Unit(PITCH); // forward vector
@@ -347,7 +347,7 @@ void QuakeAIView::Avoidance(unsigned long deltaMs)
 		for (int angle = 1; angle <= 90; angle++)
 		{
 			rotation = Rotation<4, float>(
-				AxisAngle<4, float>(Vector4<float>::Unit(2),
+				AxisAngle<4, float>(Vector4<float>::Unit(YAW),
 				(mYaw + angle * sign) * (float)GE_C_DEG_TO_RAD));
 
 			atWorld = Vector4<float>::Unit(PITCH); // forward vector
@@ -379,7 +379,7 @@ void QuakeAIView::Smooth(unsigned long deltaMs)
 {
 	Vector3<float> position = mAbsoluteTransform.GetTranslation();
 	Matrix4x4<float> rotation = Rotation<4, float>(
-		AxisAngle<4, float>(Vector4<float>::Unit(2), mYaw * (float)GE_C_DEG_TO_RAD));
+		AxisAngle<4, float>(Vector4<float>::Unit(YAW), mYaw * (float)GE_C_DEG_TO_RAD));
 
 	// This will give us the "look at" vector 
 	// in world space - we'll use that to move.
@@ -416,7 +416,7 @@ void QuakeAIView::Smooth(unsigned long deltaMs)
 		for (int angle = 1; angle <= 90; angle++)
 		{
 			rotation = Rotation<4, float>(
-				AxisAngle<4, float>(Vector4<float>::Unit(2),
+				AxisAngle<4, float>(Vector4<float>::Unit(YAW),
 				(mYaw + angle * sign) * (float)GE_C_DEG_TO_RAD));
 
 			atWorld = Vector4<float>::Unit(PITCH); // forward vector
@@ -447,7 +447,7 @@ void QuakeAIView::Smooth(unsigned long deltaMs)
 		for (int angle = 1; angle <= 90; angle++)
 		{
 			rotation = Rotation<4, float>(
-				AxisAngle<4, float>(Vector4<float>::Unit(2),
+				AxisAngle<4, float>(Vector4<float>::Unit(YAW),
 				(mYaw + angle * sign) * (float)GE_C_DEG_TO_RAD));
 
 			atWorld = Vector4<float>::Unit(PITCH); // forward vector
@@ -1047,10 +1047,10 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 						// Calculate the new rotation matrix from the camera
 						// yaw and pitch (zrotate and xrotate).
 						Matrix4x4<float> yawRotation = Rotation<4, float>(
-							AxisAngle<4, float>(Vector4<float>::Unit(2), mYaw * (float)GE_C_DEG_TO_RAD));
+							AxisAngle<4, float>(Vector4<float>::Unit(YAW), mYaw * (float)GE_C_DEG_TO_RAD));
 						Matrix4x4<float> rotation = yawRotation;
 						Matrix4x4<float> pitchRotation = Rotation<4, float>(
-							AxisAngle<4, float>(Vector4<float>::Unit(1), mPitch * (float)GE_C_DEG_TO_RAD));
+							AxisAngle<4, float>(Vector4<float>::Unit(ROLL), mPitch * (float)GE_C_DEG_TO_RAD));
 
 						//smoothing camera rotation
 						if (abs(mYawSmooth - mYaw) < 90)
@@ -1071,7 +1071,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 						}
 
 						yawRotation = Rotation<4, float>(
-							AxisAngle<4, float>(Vector4<float>::Unit(2), mYawSmooth * (float)GE_C_DEG_TO_RAD));
+							AxisAngle<4, float>(Vector4<float>::Unit(YAW), mYawSmooth * (float)GE_C_DEG_TO_RAD));
 
 						mAbsoluteTransform.SetRotation(yawRotation * pitchRotation);
 						mAbsoluteTransform.SetTranslation(pTransformComponent->GetPosition());
@@ -1162,9 +1162,9 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 									mPitch = 90 * ((mPitchTarget + 85.f) / 170.f) - 45.f;
 
 									yawRotation = Rotation<4, float>(
-										AxisAngle<4, float>(Vector4<float>::Unit(2), mYaw * (float)GE_C_DEG_TO_RAD));
+										AxisAngle<4, float>(Vector4<float>::Unit(YAW), mYaw * (float)GE_C_DEG_TO_RAD));
 									pitchRotation = Rotation<4, float>(
-										AxisAngle<4, float>(Vector4<float>::Unit(1), mPitch * (float)GE_C_DEG_TO_RAD));
+										AxisAngle<4, float>(Vector4<float>::Unit(ROLL), mPitch * (float)GE_C_DEG_TO_RAD));
 									mAbsoluteTransform.SetRotation(yawRotation * pitchRotation);
 
 									pPlayerActor->GetAction().actionType |= ACTION_ATTACK;
@@ -1174,7 +1174,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 
 						// update node rotation matrix
 						pitchRotation = Rotation<4, float>(
-							AxisAngle<4, float>(Vector4<float>::Unit(1), mPitchTarget * (float)GE_C_DEG_TO_RAD));
+							AxisAngle<4, float>(Vector4<float>::Unit(ROLL), mPitchTarget * (float)GE_C_DEG_TO_RAD));
 						pTransformComponent->SetRotation(yawRotation * pitchRotation);
 					}
 					pPlayerActor->GetAction().actionType |= ACTION_RUN;
@@ -1187,10 +1187,10 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 					// Calculate the new rotation matrix from the camera
 					// yaw and pitch (zrotate and xrotate).
 					Matrix4x4<float> yawRotation = Rotation<4, float>(
-						AxisAngle<4, float>(Vector4<float>::Unit(2), mYaw * (float)GE_C_DEG_TO_RAD));
+						AxisAngle<4, float>(Vector4<float>::Unit(YAW), mYaw * (float)GE_C_DEG_TO_RAD));
 					Matrix4x4<float> rotation = yawRotation;
 					Matrix4x4<float> pitchRotation = Rotation<4, float>(
-						AxisAngle<4, float>(Vector4<float>::Unit(1), mPitch * (float)GE_C_DEG_TO_RAD));
+						AxisAngle<4, float>(Vector4<float>::Unit(ROLL), mPitch * (float)GE_C_DEG_TO_RAD));
 
 					// This will give us the "look at" vector 
 					// in world space - we'll use that to move.
@@ -1270,16 +1270,16 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 								mPitch = 90 * ((mPitchTarget + 85.f) / 170.f) - 45.f;
 
 								yawRotation = Rotation<4, float>(
-									AxisAngle<4, float>(Vector4<float>::Unit(2), mYaw * (float)GE_C_DEG_TO_RAD));
+									AxisAngle<4, float>(Vector4<float>::Unit(YAW), mYaw * (float)GE_C_DEG_TO_RAD));
 								pitchRotation = Rotation<4, float>(
-									AxisAngle<4, float>(Vector4<float>::Unit(1), mPitch * (float)GE_C_DEG_TO_RAD));
+									AxisAngle<4, float>(Vector4<float>::Unit(ROLL), mPitch * (float)GE_C_DEG_TO_RAD));
 								mAbsoluteTransform.SetRotation(yawRotation * pitchRotation);
 
 								pPlayerActor->GetAction().actionType |= ACTION_ATTACK;
 
 								// update node rotation matrix
 								pitchRotation = Rotation<4, float>(
-									AxisAngle<4, float>(Vector4<float>::Unit(1), mPitchTarget * (float)GE_C_DEG_TO_RAD));
+									AxisAngle<4, float>(Vector4<float>::Unit(ROLL), mPitchTarget * (float)GE_C_DEG_TO_RAD));
 								pTransformComponent->SetRotation(yawRotation * pitchRotation);
 							}
 						}

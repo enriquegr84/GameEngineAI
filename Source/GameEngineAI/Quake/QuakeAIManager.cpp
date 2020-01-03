@@ -2276,9 +2276,9 @@ void QuakeAIManager::SimulateGrenadeLauncherFire(PathingNode* pNode, eastl::shar
 		for (int pitchAngle = -80; pitchAngle <= 80; pitchAngle += 20)
 		{
 			Matrix4x4<float> yawRotation = Rotation<4, float>(
-				AxisAngle<4, float>(Vector4<float>::Unit(2), yawAngle * (float)GE_C_DEG_TO_RAD));
+				AxisAngle<4, float>(Vector4<float>::Unit(YAW), yawAngle * (float)GE_C_DEG_TO_RAD));
 			Matrix4x4<float> pitchRotation = Rotation<4, float>(
-				AxisAngle<4, float>(Vector4<float>::Unit(1), -pitchAngle * (float)GE_C_DEG_TO_RAD));
+				AxisAngle<4, float>(Vector4<float>::Unit(ROLL), -pitchAngle * (float)GE_C_DEG_TO_RAD));
 			Matrix4x4<float> rotation = yawRotation * pitchRotation;
 
 			// forward vector
@@ -2853,7 +2853,7 @@ bool Cliff(const Vector3<float>& translation)
 	for (int angle = 0; angle < 360; angle += 5)
 	{
 		Matrix4x4<float> rotation = Rotation<4, float>(
-			AxisAngle<4, float>(Vector4<float>::Unit(2), angle * (float)GE_C_DEG_TO_RAD));
+			AxisAngle<4, float>(Vector4<float>::Unit(YAW), angle * (float)GE_C_DEG_TO_RAD));
 
 		// This will give us the "look at" vector 
 		// in world space - we'll use that to move.
@@ -2872,7 +2872,7 @@ bool Cliff(const Vector3<float>& translation)
 
 		Transform end;
 		end.SetRotation(rotation);
-		end.SetTranslation(position - Vector3<float>::Unit(2) * 300.f);
+		end.SetTranslation(position - Vector3<float>::Unit(YAW) * 300.f);
 
 		Vector3<float> collision, collisionNormal;
 		collision = end.GetTranslation();
@@ -2901,7 +2901,7 @@ void QuakeAIManager::SimulateMovement(PathingNode* pNode)
 	for (int angle = 0; angle < 360; angle += 5)
 	{
 		Matrix4x4<float> rotation = Rotation<4, float>(
-			AxisAngle<4, float>(Vector4<float>::Unit(2), angle * (float)GE_C_DEG_TO_RAD));
+			AxisAngle<4, float>(Vector4<float>::Unit(YAW), angle * (float)GE_C_DEG_TO_RAD));
 
 		transform.SetTranslation(pNode->GetPos());
 		transform.SetRotation(rotation);
@@ -3117,7 +3117,7 @@ void QuakeAIManager::SimulateJump(PathingNode* pNode)
 	for (int angle = 0; angle < 360; angle += 5)
 	{
 		Matrix4x4<float> rotation = Rotation<4, float>(
-			AxisAngle<4, float>(Vector4<float>::Unit(2), angle * (float)GE_C_DEG_TO_RAD));
+			AxisAngle<4, float>(Vector4<float>::Unit(YAW), angle * (float)GE_C_DEG_TO_RAD));
 
 		// forward vector
 #if defined(GE_USE_MAT_VEC)
