@@ -430,6 +430,39 @@ void QuakeLogic::JumpActorDelegate(BaseEventDataPtr pEventData)
 	}
 }
 
+void QuakeLogic::TeleportActorDelegate(BaseEventDataPtr pEventData)
+{
+	eastl::shared_ptr<QuakeEventDataTeleportActor> pCastEventData =
+		eastl::static_pointer_cast<QuakeEventDataTeleportActor>(pEventData);
+
+	eastl::shared_ptr<PlayerActor> pPlayerActor(
+		eastl::dynamic_shared_pointer_cast<PlayerActor>(
+		GameLogic::Get()->GetActor(pCastEventData->GetId()).lock()));
+	if (pPlayerActor)
+	{
+		eastl::shared_ptr<Actor> pItemActor(
+			eastl::dynamic_shared_pointer_cast<Actor>(
+			GameLogic::Get()->GetActor(pPlayerActor->GetAction().triggerTeleporter).lock()));
+		eastl::shared_ptr<TeleporterTrigger> pTeleporterTrigger =
+			pItemActor->GetComponent<TeleporterTrigger>(TeleporterTrigger::Name).lock();
+		pPlayerActor->GetAction().triggerTeleporter = INVALID_ACTOR_ID;
+
+		eastl::shared_ptr<TransformComponent> pTransformComponent =
+			pPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock();
+		if (pTransformComponent)
+			pTransformComponent->SetTransform(pTeleporterTrigger->GetTarget());
+
+		eastl::shared_ptr<PhysicComponent> pPhysicalComponent =
+			pPlayerActor->GetComponent<PhysicComponent>(PhysicComponent::Name).lock();
+		if (pPhysicalComponent)
+			pPhysicalComponent->SetTransform(pTeleporterTrigger->GetTarget());
+
+		// play teleporter sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/world/teleout.ogg"));
+	}
+}
+
 void QuakeLogic::SpawnActorDelegate(BaseEventDataPtr pEventData)
 {
 	eastl::shared_ptr<QuakeEventDataSpawnActor> pCastEventData =
@@ -622,6 +655,9 @@ void QuakeLogic::RegisterAllDelegates(void)
 		MakeDelegate(this, &QuakeLogic::FireWeaponDelegate),
 		QuakeEventDataFireWeapon::skEventType);
 	pGlobalEventManager->AddListener(
+		MakeDelegate(this, &QuakeLogic::TeleportActorDelegate),
+		QuakeEventDataTeleportActor::skEventType);
+	pGlobalEventManager->AddListener(
 		MakeDelegate(this, &QuakeLogic::SpawnActorDelegate),
 		QuakeEventDataSpawnActor::skEventType);
 	pGlobalEventManager->AddListener(
@@ -700,6 +736,9 @@ void QuakeLogic::RemoveAllDelegates(void)
 	pGlobalEventManager->RemoveListener(
 		MakeDelegate(this, &QuakeLogic::FireWeaponDelegate),
 		QuakeEventDataFireWeapon::skEventType);
+	pGlobalEventManager->RemoveListener(
+		MakeDelegate(this, &QuakeLogic::TeleportActorDelegate),
+		QuakeEventDataTeleportActor::skEventType);
 	pGlobalEventManager->RemoveListener(
 		MakeDelegate(this, &QuakeLogic::SpawnActorDelegate),
 		QuakeEventDataSpawnActor::skEventType);
@@ -787,6 +826,9 @@ void QuakeLogic::CreateNetworkEventForwarder(const int socketId)
 		QuakeEventDataSplashDamage::skEventType);
 	pGlobalEventManager->AddListener(
 		MakeDelegate(pNetworkEventForwarder, &NetworkEventForwarder::ForwardEvent),
+		QuakeEventDataTeleportActor::skEventType);
+	pGlobalEventManager->AddListener(
+		MakeDelegate(pNetworkEventForwarder, &NetworkEventForwarder::ForwardEvent),
 		QuakeEventDataSpawnActor::skEventType);
 	pGlobalEventManager->AddListener(
 		MakeDelegate(pNetworkEventForwarder, &NetworkEventForwarder::ForwardEvent),
@@ -857,6 +899,9 @@ void QuakeLogic::DestroyAllNetworkEventForwarders(void)
 		eventManager->RemoveListener(
 			MakeDelegate(networkEventForwarder, &NetworkEventForwarder::ForwardEvent),
 			QuakeEventDataSplashDamage::skEventType);
+		eventManager->RemoveListener(
+			MakeDelegate(networkEventForwarder, &NetworkEventForwarder::ForwardEvent),
+			QuakeEventDataTeleportActor::skEventType);
 		eventManager->RemoveListener(
 			MakeDelegate(networkEventForwarder, &NetworkEventForwarder::ForwardEvent),
 			QuakeEventDataSpawnActor::skEventType);
