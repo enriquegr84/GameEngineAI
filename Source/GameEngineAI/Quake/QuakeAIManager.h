@@ -403,7 +403,6 @@ private:
 	void SimulateTriggerPush(PathingNode* pNode, const Vector3<float>& target);
 	void SimulateTriggerTeleport(PathingNode* pNode, const Vector3<float>& target);
 	void SimulateActorPosition(ActorId actorId, const Vector3<float>& position);
-	void SimulateGrenadeLauncherFire(PathingNode* pNode, eastl::shared_ptr<Actor> pGameActor);
 
 	void SimulateWaypoint();
 	void SimulateVisibility();

@@ -2154,21 +2154,6 @@ void QuakeAIManager::CreateMap(ActorId playerId)
 	GameLogic::Get()->GetAIManager()->SavePathingGraph(
 		FileSystem::Get()->GetPath(ToString(levelPath.c_str())));
 
-	// we need to handle firing grenades separately since they cannot be simulated by raycasting 
-	// as they describe different trajectories
-	/*
-	eastl::shared_ptr<Actor> pGameActor(
-		GameLogic::Get()->CreateActor("actors/quake/effects/simulategrenadelauncherfire.xml", nullptr));
-	eastl::shared_ptr<PhysicComponent> pPhysicalComponent =
-		pGameActor->GetComponent<PhysicComponent>(PhysicComponent::Name).lock();
-	if (pPhysicalComponent)
-		pPhysicalComponent->SetIgnoreCollision(mPlayerActor->GetId(), true);
-	for (PathingNode* pNode : mPathingGraph->GetNodes())
-		SimulateGrenadeLauncherFire(pNode, pGameActor);
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataRequestDestroyActor>(pGameActor->GetId()));
-	*/
-
 	game->RegisterAllDelegates();
 }
 
@@ -2180,7 +2165,7 @@ void QuakeAIManager::SimulateVisibility()
 
 	// there are hundred of millions of combinations depending on the size of the map
 	// which will take forever to simulate visibility thats why we have to make an aproximation
-	// by grouping every position to its neareast node 345
+	// by grouping every position to its neareast node
 
 	// first we get visibility info from every node by raycasting
 	for (PathingNode* pathNode : mPathingGraph->GetNodes())
@@ -2260,71 +2245,6 @@ void QuakeAIManager::SimulateVisibility()
 			{
 				pathNode->AddTransition(new PathingTransition(pathArc->GetId(), pathArc->GetType(), 
 					{ pathArc->GetNode() }, { pathArc->GetWeight() }, { pathArc->GetNode()->GetPos() }));
-			}
-		}
-	}
-}
-
-void QuakeAIManager::SimulateGrenadeLauncherFire(PathingNode* pNode, eastl::shared_ptr<Actor> pGameActor)
-{
-	eastl::shared_ptr<BaseGamePhysic> gamePhysics = GameLogic::Get()->GetGamePhysics();
-
-	Transform transform;
-	Vector3<float> direction;
-	for (int yawAngle = 0; yawAngle < 360; yawAngle += 20)
-	{
-		for (int pitchAngle = -80; pitchAngle <= 80; pitchAngle += 20)
-		{
-			Matrix4x4<float> yawRotation = Rotation<4, float>(
-				AxisAngle<4, float>(Vector4<float>::Unit(YAW), yawAngle * (float)GE_C_DEG_TO_RAD));
-			Matrix4x4<float> pitchRotation = Rotation<4, float>(
-				AxisAngle<4, float>(Vector4<float>::Unit(ROLL), -pitchAngle * (float)GE_C_DEG_TO_RAD));
-			Matrix4x4<float> rotation = yawRotation * pitchRotation;
-
-			// forward vector
-#if defined(GE_USE_MAT_VEC)
-			direction = HProject(rotation * Vector4<float>::Unit(PITCH));
-#else
-			direction = HProject(Vector4<float>::Unit(PITCH) * rotation);
-#endif
-			Vector3<float> forward = HProject(rotation * Vector4<float>::Unit(PITCH));
-
-			//set muzzle location relative to pivoting eye
-			Vector3<float> muzzle = pNode->GetPos();
-			muzzle[2] += mPlayerActor->GetState().viewHeight;
-			muzzle -= Vector3<float>::Unit(ROLL) * 11.f;
-			Vector3<float> end = muzzle + forward * 8192.f * 16.f;
-
-			direction[PITCH] *= 800000.f;
-			direction[ROLL] *= 800000.f;
-			direction[YAW] *= 500000.f;
-
-			// projectile simulation
-			transform.SetTranslation(muzzle);
-			transform.SetRotation(rotation);
-			gamePhysics->SetTransform(pGameActor->GetId(), transform);
-			gamePhysics->ApplyForce(pGameActor->GetId(), direction);
-			gamePhysics->OnUpdate(0.01f);
-
-			float deltaTime = 0.f;
-			while (deltaTime < 3.0f)
-			{
-				gamePhysics->OnUpdate(0.1f);
-				deltaTime += 0.1f;
-			}
-
-			transform = gamePhysics->GetTransform(pGameActor->GetId());
-
-			PathingNodeVec impactNodes;
-			mPathingGraph->FindNodes(impactNodes, transform.GetTranslation(), 150);
-			for (PathingNode* impactNode : impactNodes)
-			{
-				float dist = Length(transform.GetTranslation() - impactNode->GetPos());
-				float damage = 100 * (1.f - dist / 150); // calculate radius damage
-
-				direction = transform.GetTranslation() - muzzle;
-				Normalize(direction);
-				//damage;
 			}
 		}
 	}
