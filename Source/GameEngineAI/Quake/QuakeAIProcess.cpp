@@ -875,9 +875,9 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 		}
 	}
 
-	//In game theory, Nash equilibrium is used for simultaneous decision making and it says that it is needed to
-	//take into account the decision-making of the others in order to make the best decision possible. That being said, 
-	//we will take the results from both players minimax and decide what is the best solution for each player. 
+	//In game theory for simultaneous decision making, it is stated that the best way to play 
+	//is always considering the opponent’s decision-making. Therefore, we will take the results 
+	//from both players minimax and decide what is the best solution for each player. 
 	if (mPlayerState.valid && mOtherPlayerState.valid)
 	{
 		mAIManager->PrintLogInformation("\n game theory decision-making ");
