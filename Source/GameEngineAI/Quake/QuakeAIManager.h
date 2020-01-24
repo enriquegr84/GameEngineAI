@@ -463,13 +463,6 @@ private:
 
 	eastl::map<ActorId, eastl::map<ActorId, float>> mPlayerGuessItems;
 
-	// Orientation Controls
-	float mYaw;
-	float mPitch;
-	float mPitchTarget;
-	float mPitchOnDown;
-	float mYawOnDown;
-
 	// Speed Controls
 	float mMaxFallSpeed;
 	float mMaxJumpSpeed;

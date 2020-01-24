@@ -157,9 +157,6 @@ QuakeAIManager::QuakeAIManager() : AIManager()
 	mLastNodeId = 0;
 	mLastPlanId = 0;
 
-	mYaw = 0.0f;
-	mPitchTarget = 0.0f;
-
 	mMaxJumpSpeed = 3.4f;
 	mMaxFallSpeed = 240.0f;
 	mMaxRotateSpeed = 180.0f;
