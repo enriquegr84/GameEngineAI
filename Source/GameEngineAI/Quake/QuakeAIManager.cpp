@@ -2160,9 +2160,10 @@ void QuakeAIManager::SimulateVisibility()
 
 	Transform transform;
 
-	// there are hundred of millions of combinations depending on the size of the map
-	// which will take forever to simulate visibility thats why we have to make an aproximation
-	// by grouping every position to its neareast node
+	// each arc in the graph has a set of transition nodes that we can’t realistically process for 
+	// visibility since there are hundred of millions of pair transition combinations depending 
+	// on the size of the map which will take forever to simulate visibility. Thats why we have to 
+	// make an aproximation by associating every transition position to its neareast node
 
 	// first we get visibility info from every node by raycasting
 	for (PathingNode* pathNode : mPathingGraph->GetNodes())
@@ -2276,27 +2277,24 @@ void QuakeAIManager::SimulateWaypoint()
 		PathingNode* pNode = itActorNode->first;
 		if (pNode != NULL)
 		{
-			if (pItemActor->GetType() == "Trigger")
+			pNode->RemoveTransitions();
+			pNode->RemoveArcs();
+
+			if (pItemActor->GetComponent<PushTrigger>(PushTrigger::Name).lock())
 			{
-				pNode->RemoveTransitions();
-				pNode->RemoveArcs();
+				eastl::shared_ptr<PushTrigger> pPushTrigger =
+					pItemActor->GetComponent<PushTrigger>(PushTrigger::Name).lock();
 
-				if (pItemActor->GetComponent<PushTrigger>(PushTrigger::Name).lock())
-				{
-					eastl::shared_ptr<PushTrigger> pPushTrigger =
-						pItemActor->GetComponent<PushTrigger>(PushTrigger::Name).lock();
+				Vector3<float> targetPosition = pPushTrigger->GetTarget().GetTranslation();
+				SimulateTriggerPush(pNode, targetPosition);
+			}
+			else if (pItemActor->GetComponent<TeleporterTrigger>(TeleporterTrigger::Name).lock())
+			{
+				eastl::shared_ptr<TeleporterTrigger> pTeleporterTrigger =
+					pItemActor->GetComponent<TeleporterTrigger>(TeleporterTrigger::Name).lock();
 
-					Vector3<float> targetPosition = pPushTrigger->GetTarget().GetTranslation();
-					SimulateTriggerPush(pNode, targetPosition);
-				}
-				else if (pItemActor->GetComponent<TeleporterTrigger>(TeleporterTrigger::Name).lock())
-				{
-					eastl::shared_ptr<TeleporterTrigger> pTeleporterTrigger =
-						pItemActor->GetComponent<TeleporterTrigger>(TeleporterTrigger::Name).lock();
-
-					Vector3<float> targetPosition = pTeleporterTrigger->GetTarget().GetTranslation();
-					SimulateTriggerTeleport(pNode, targetPosition);
-				}
+				Vector3<float> targetPosition = pTeleporterTrigger->GetTarget().GetTranslation();
+				SimulateTriggerTeleport(pNode, targetPosition);
 			}
 		}
 	}
@@ -2306,15 +2304,9 @@ void QuakeAIManager::SimulateWaypoint()
 		// grab the candidate
 		PathingNode* pNode = mClosedSet.front();
 
-		// if the node is a trigger we don't simulate jump on it
-		if (mActorNodes.find(pNode) != mActorNodes.end())
-		{
-			eastl::shared_ptr<Actor> pGameActor(
-				GameLogic::Get()->GetActor(mActorNodes[pNode]).lock());
-			if (pGameActor->GetType() != "Trigger")
-				SimulateJump(pNode);
-		}
-		else SimulateJump(pNode);
+		// if the node is a trigger we don't simulate it
+		if (mActorNodes.find(pNode) == mActorNodes.end())
+			SimulateJump(pNode);
 
 		// we have processed this node so remove it from the closed set
 		mClosedSet.erase(mClosedSet.begin());
@@ -2555,7 +2547,6 @@ void QuakeAIManager::CreateClusters()
 
 void QuakeAIManager::SimulateActorPosition(ActorId actorId, const Vector3<float>& position)
 {
-	//lets move the character towards different directions
 	eastl::shared_ptr<BaseGamePhysic> gamePhysics = GameLogic::Get()->GetGamePhysics();
 
 	Transform transform;
@@ -2572,7 +2563,6 @@ void QuakeAIManager::SimulateActorPosition(ActorId actorId, const Vector3<float>
 
 void QuakeAIManager::SimulateTriggerTeleport(PathingNode* pNode, const Vector3<float>& target)
 {
-	//lets move the character towards different directions
 	eastl::shared_ptr<BaseGamePhysic> gamePhysics = GameLogic::Get()->GetGamePhysics();
 
 	Vector3<float> direction = Vector3<float>::Unit(YAW); //up vector
@@ -2657,7 +2647,6 @@ void QuakeAIManager::SimulateTriggerTeleport(PathingNode* pNode, const Vector3<f
 
 void QuakeAIManager::SimulateTriggerPush(PathingNode* pNode, const Vector3<float>& target)
 {
-	//lets move the character towards different directions
 	eastl::shared_ptr<BaseGamePhysic> gamePhysics = GameLogic::Get()->GetGamePhysics();
 
 	Vector3<float> direction = target - pNode->GetPos();
@@ -2806,7 +2795,6 @@ bool Cliff(const Vector3<float>& translation)
 
 void QuakeAIManager::SimulateMovement(PathingNode* pNode)
 {
-	//lets move the character towards different directions
 	eastl::shared_ptr<BaseGamePhysic> gamePhysics = GameLogic::Get()->GetGamePhysics();
 
 	Transform transform;
@@ -3026,7 +3014,6 @@ void QuakeAIManager::SimulateMovement(PathingNode* pNode)
 
 void QuakeAIManager::SimulateJump(PathingNode* pNode)
 {
-	//lets move the character towards different directions
 	eastl::shared_ptr<BaseGamePhysic> gamePhysics = GameLogic::Get()->GetGamePhysics();
 
 	Transform transform;

@@ -249,7 +249,6 @@ void PlayerActor::PlayerSpawn()
 	mState.ammo[WP_MACHINEGUN] = 100;
 	mState.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 
-	// health will count down towards max_health
 	mState.stats[STAT_HEALTH] = mState.stats[STAT_MAX_HEALTH] + 25;
 
 	// force the base weapon up
