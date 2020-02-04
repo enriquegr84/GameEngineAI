@@ -222,11 +222,13 @@ void QuakeAIProcess::Simulation(
 	eastl::map<ActorId, float>::iterator itActor;
 	for (itActor = actors.begin(); itActor != actors.end(); itActor++)
 	{
-		if (mAIManager->CanItemBeGrabbed((*itActor).first, (*itActor).second, playerState))
+		if (mAIManager->CanItemBeGrabbed(
+			(*itActor).first, (*itActor).second, playerState, mExcludeActors))
 		{
 			if (otherActors.find((*itActor).first) != otherActors.end())
 			{
-				if (!mAIManager->CanItemBeGrabbed((*itActor).first, (*itActor).second, otherPlayerState) ||
+				if (!mAIManager->CanItemBeGrabbed(
+					(*itActor).first, (*itActor).second, otherPlayerState, mExcludeActors) ||
 					otherActors[(*itActor).first] > (*itActor).second)
 				{
 					pathActors[(*itActor).first] = (*itActor).second;
@@ -245,11 +247,13 @@ void QuakeAIProcess::Simulation(
 	eastl::map<ActorId, float>::iterator itOtherActor;
 	for (itOtherActor = otherActors.begin(); itOtherActor != otherActors.end(); itOtherActor++)
 	{
-		if (mAIManager->CanItemBeGrabbed((*itOtherActor).first, (*itOtherActor).second, otherPlayerState))
+		if (mAIManager->CanItemBeGrabbed(
+			(*itOtherActor).first, (*itOtherActor).second, otherPlayerState, mExcludeActors))
 		{
 			if (actors.find((*itOtherActor).first) != actors.end())
 			{
-				if (!mAIManager->CanItemBeGrabbed((*itOtherActor).first, (*itOtherActor).second, playerState) ||
+				if (!mAIManager->CanItemBeGrabbed(
+					(*itOtherActor).first, (*itOtherActor).second, playerState, mExcludeActors) ||
 					actors[(*itOtherActor).first] > (*itOtherActor).second)
 				{
 					otherPathActors[(*itOtherActor).first] = (*itOtherActor).second;

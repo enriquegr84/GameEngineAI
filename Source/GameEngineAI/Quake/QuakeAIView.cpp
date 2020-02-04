@@ -515,7 +515,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 					mCurrentArc = (*itArc);
 					mCurrentAction = mCurrentArc->GetType();
 					mCurrentNode = mCurrentArc->GetNode();
-					mCurrentActionTime = mCurrentArc->GetWeight() + 2.0f;
+					mCurrentActionTime = mCurrentArc->GetWeight() + 1.0f;
 					Vector3<float> direction = mCurrentNode->GetPos() - currentPosition;
 					Normalize(direction);
 					mYaw = atan2(direction[1], direction[0]) * (float)GE_C_RAD_TO_DEG;
@@ -603,7 +603,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 						mCurrentArc = clusterArc;
 						mCurrentAction = clusterArcType;
 						mCurrentNode = clusterArc->GetNode();
-						mCurrentActionTime = clusterArc->GetWeight() + 2.0f;
+						mCurrentActionTime = clusterArc->GetWeight() + 1.0f;
 						Vector3<float> direction = clusterNode->GetPos() - currentPosition;
 						Normalize(direction);
 						mYaw = atan2(direction[1], direction[0]) * (float)GE_C_RAD_TO_DEG;
@@ -872,10 +872,8 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 									mYaw = atan2(direction[1], direction[0]) * (float)GE_C_RAD_TO_DEG;
 
 									mGoalNode = NULL;
-									searchNode = false;
 								}
-
-								if (searchNode)
+								else
 								{
 									PathingNode* currentNode = mCurrentNode;
 									if (mGoalNode == NULL || mGoalNode == currentNode)
@@ -1017,7 +1015,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 									{
 										eastl::shared_ptr<Actor> pActor(
 											eastl::dynamic_shared_pointer_cast<Actor>(
-												GameLogic::Get()->GetActor(actorId).lock()));
+											GameLogic::Get()->GetActor(actorId).lock()));
 										if (pActor && pActor->GetType() == "Player")
 										{
 											//dynamic avoidance

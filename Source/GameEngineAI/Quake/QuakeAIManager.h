@@ -384,7 +384,8 @@ protected:
 	void CalculateDamage(NodeState& state, 
 		float visibleTime, float visibleDistance, float visibleHeight);
 
-	bool CanItemBeGrabbed(ActorId itemId, float itemTime, NodeState& playerState);
+	bool CanItemBeGrabbed(ActorId itemId, float itemTime, 
+		NodeState& playerState, eastl::map<ActorId, float>& excludeActors);
 	void PickupItems(NodeState& playerState, 
 		eastl::map<ActorId, float>& actors, eastl::map<ActorId, float>& excludeActors);
 
@@ -442,7 +443,6 @@ private:
 	eastl::map<PathingNode*, ActorId> mActorNodes;
 
 	//player ai states
-	eastl::map<ActorId, float> mPlayerTime;
 	eastl::map<ActorId, float> mPlayerPlanTime;
 
 	eastl::map<ActorId, bool> mPlayers;

@@ -556,7 +556,7 @@ void AIFinder::operator()(NodeState& pNodeState,
 				if (weight >= threshold)
 					continue;
 
-				if (!aiManager->CanItemBeGrabbed(pClusterToEvaluate->GetActor(), weight, mNodeState))
+				if (!aiManager->CanItemBeGrabbed(pClusterToEvaluate->GetActor(), weight, mNodeState, excludeActors))
 					continue;
 
 				eastl::map<ActorId, float> planClusterActors;
@@ -926,11 +926,8 @@ void QuakeAIManager::SpawnActor(ActorId playerId)
 			SetPlayerPlan(pPlayerActor->GetId(), playerPlan);
 		}
 
-		if (mPlayerTime.find(pPlayerActor->GetId()) == mPlayerTime.end())
-		{
-			mPlayerTime[pPlayerActor->GetId()] = 1.0f;
+		if (mPlayerPlanTime.find(pPlayerActor->GetId()) == mPlayerPlanTime.end())
 			mPlayerPlanTime[pPlayerActor->GetId()] = 0.f;
-		}
 
 		//no idea where the player is located take any random spawn position
 		eastl::shared_ptr<Actor> spawnSpot;
@@ -956,7 +953,6 @@ void QuakeAIManager::SpawnActor(ActorId playerId)
 			if (pPlayerActor->GetId() == pOtherPlayerActor->GetId())
 				continue;
 
-			mPlayerTime[pOtherPlayerActor->GetId()] = 1.0f;
 			mPlayerPlanTime[pOtherPlayerActor->GetId()] = 0.f;
 		}
 	}
@@ -981,7 +977,6 @@ void QuakeAIManager::DetectActor(eastl::shared_ptr<PlayerActor> pPlayerActor, ea
 			if (Length(pPlayerTransform->GetPosition() - pOtherPlayerTransform->GetPosition()) > 700.f)
 				continue;
 
-			mPlayerTime[pOtherPlayerActor->GetId()] = 0.f;
 			mPlayerPlanTime[pOtherPlayerActor->GetId()] = 0.f;
 
 			RemovePlayerGuessItems(pPlayerActor->GetId());
@@ -1526,7 +1521,8 @@ void QuakeAIManager::CalculateDamage(NodeState& state,
 CanItemBeGrabbed
 Returns false if the item should not be picked up.
 */
-bool QuakeAIManager::CanItemBeGrabbed(ActorId itemId, float itemTime, NodeState& playerState)
+bool QuakeAIManager::CanItemBeGrabbed(ActorId itemId, float itemTime, 
+	NodeState& playerState, eastl::map<ActorId, float>& excludeActors)
 {
 	eastl::shared_ptr<Actor> pItemActor(GameLogic::Get()->GetActor(itemId).lock());
 	if (pItemActor)
@@ -1536,62 +1532,94 @@ bool QuakeAIManager::CanItemBeGrabbed(ActorId itemId, float itemTime, NodeState&
 			eastl::shared_ptr<WeaponPickup> pWeaponPickup =
 				pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
 			float respawnItemTime = pWeaponPickup->mRespawnTime / 1000.f;
-			if (respawnItemTime - itemTime <= 0)
+			if (excludeActors.find(itemId) != excludeActors.end())
 			{
-				if (playerState.ammo[pWeaponPickup->GetCode()] >= 200)
-					return false;		// can't hold any more
-
-				return true;
+				if (excludeActors[itemId] - itemTime > 0)
+					return false;
 			}
+			else
+			{
+				if (respawnItemTime - itemTime > 0)
+					return false;
+			}
+
+			if (playerState.ammo[pWeaponPickup->GetCode()] >= 200)
+				return false;		// can't hold any more
+
+			return true;
 		}
 		else if (pItemActor->GetType() == "Ammo")
 		{
 			eastl::shared_ptr<AmmoPickup> pAmmoPickup =
 				pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
 			float respawnItemTime = pAmmoPickup->mRespawnTime / 1000.f;
-			if (respawnItemTime - itemTime <= 0)
+			if (excludeActors.find(itemId) != excludeActors.end())
 			{
-				if (playerState.ammo[pAmmoPickup->GetCode()] >= 200)
-					return false;		// can't hold any more
-
-				return true;
+				if (excludeActors[itemId] - itemTime > 0)
+					return false;
 			}
+			else
+			{
+				if (respawnItemTime - itemTime > 0)
+					return false;
+			}
+
+			if (playerState.ammo[pAmmoPickup->GetCode()] >= 200)
+				return false;		// can't hold any more
+
+			return true;
 		}
 		else if (pItemActor->GetType() == "Armor")
 		{
 			eastl::shared_ptr<ArmorPickup> pArmorPickup =
 				pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
 			float respawnItemTime = pArmorPickup->mRespawnTime / 1000.f;
-			if (respawnItemTime - itemTime <= 0)
+			if (excludeActors.find(itemId) != excludeActors.end())
 			{
-				if (playerState.stats[STAT_ARMOR] >= playerState.stats[STAT_MAX_HEALTH] * 2)
-					return false;		// can't hold any more
-
-				return true;
+				if (excludeActors[itemId] - itemTime > 0)
+					return false;
 			}
+			else
+			{
+				if (respawnItemTime - itemTime > 0)
+					return false;
+			}
+
+			if (playerState.stats[STAT_ARMOR] >= playerState.stats[STAT_MAX_HEALTH] * 2)
+				return false;		// can't hold any more
+
+			return true;
 		}
 		else if (pItemActor->GetType() == "Health")
 		{
 			eastl::shared_ptr<HealthPickup> pHealthPickup =
 				pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
 			float respawnItemTime = pHealthPickup->mRespawnTime / 1000.f;
-			if (respawnItemTime - itemTime <= 0)
+			if (excludeActors.find(itemId) != excludeActors.end())
 			{
-				// small and mega healths will go over the max, otherwise
-				// don't pick up if already at max
-				if (pHealthPickup->GetAmount() == 5 || pHealthPickup->GetAmount() == 100)
-				{
-					if (playerState.stats[STAT_HEALTH] >= playerState.stats[STAT_MAX_HEALTH] * 2)
-						return false;		// can't hold any more
+				if (excludeActors[itemId] - itemTime > 0)
+					return false;
+			}
+			else
+			{
+				if (respawnItemTime - itemTime > 0)
+					return false;
+			}
 
-					return true;
-				}
-
-				if (playerState.stats[STAT_HEALTH] >= playerState.stats[STAT_MAX_HEALTH])
+			// small and mega healths will go over the max, otherwise
+			// don't pick up if already at max
+			if (pHealthPickup->GetAmount() == 5 || pHealthPickup->GetAmount() == 100)
+			{
+				if (playerState.stats[STAT_HEALTH] >= playerState.stats[STAT_MAX_HEALTH] * 2)
 					return false;		// can't hold any more
 
 				return true;
 			}
+
+			if (playerState.stats[STAT_HEALTH] >= playerState.stats[STAT_MAX_HEALTH])
+				return false;		// can't hold any more
+
+			return true;
 		}
 	}
 	return false;
@@ -1770,337 +1798,303 @@ void QuakeAIManager::OnUpdate(unsigned long deltaMs)
 	game->GetPlayerActors(playerActors);
 	for (eastl::shared_ptr<PlayerActor> pPlayerActor : playerActors)
 	{
-		mPlayerTime[pPlayerActor->GetId()] += deltaMs / 1000.f;
 		mPlayerPlanTime[pPlayerActor->GetId()] += deltaMs / 1000.f;
 
-		if (mPlayerTime[pPlayerActor->GetId()] >= 1.0f)
+		for (eastl::shared_ptr<PlayerActor> pOtherPlayerActor : playerActors)
 		{
-			for (eastl::shared_ptr<PlayerActor> pOtherPlayerActor : playerActors)
+			if (pPlayerActor->GetId() == pOtherPlayerActor->GetId())
+				continue;
+
+			NodeState otherPlayerGuessState;
+			GetPlayerGuessState(pOtherPlayerActor->GetId(), otherPlayerGuessState);
+
+			NodePlan otherPlayerGuessPlan;
+			GetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
+
+			eastl::map<ActorId, float> guessItems;
+			GetPlayerGuessItems(pOtherPlayerActor->GetId(), guessItems);
+			if (IsPlayerGuessUpdated(pOtherPlayerActor->GetId()))
 			{
-				if (pPlayerActor->GetId() == pOtherPlayerActor->GetId())
-					continue;
-
-				NodeState otherPlayerGuessState;
-				GetPlayerGuessState(pOtherPlayerActor->GetId(), otherPlayerGuessState);
-
-				NodePlan otherPlayerGuessPlan;
-				GetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
-
-				eastl::map<ActorId, float> guessItems;
-				GetPlayerGuessItems(pOtherPlayerActor->GetId(), guessItems);
-				if (IsPlayerGuessUpdated(pOtherPlayerActor->GetId()))
+				if (!otherPlayerGuessState.plan.path.empty() &&
+					otherPlayerGuessPlan.id != otherPlayerGuessState.plan.id)
 				{
-					if (!otherPlayerGuessState.plan.path.empty() &&
-						otherPlayerGuessPlan.id != otherPlayerGuessState.plan.id)
-					{
-						PathingNode* guessNode = otherPlayerGuessState.plan.node;
-						otherPlayerGuessPlan = otherPlayerGuessState.plan;
+					PathingNode* guessNode = otherPlayerGuessState.plan.node;
+					otherPlayerGuessPlan = otherPlayerGuessState.plan;
 
-						PathingArcVec::iterator itArc = otherPlayerGuessPlan.path.begin();
-						PathingArcVec::iterator itPathArc = otherPlayerGuessPlan.path.begin();
-						for (; itArc != otherPlayerGuessPlan.path.end(); itArc++)
+					PathingArcVec::iterator itArc = otherPlayerGuessPlan.path.begin();
+					PathingArcVec::iterator itPathArc = otherPlayerGuessPlan.path.begin();
+					for (; itArc != otherPlayerGuessPlan.path.end(); itArc++)
+					{
+						if ((*itArc)->GetNode() == otherPlayerGuessPlan.node)
 						{
-							if ((*itArc)->GetNode() == otherPlayerGuessPlan.node)
+							guessNode = otherPlayerGuessPlan.node;
+							itPathArc = itArc;
+							itPathArc++;
+							break;
+						}
+					}
+
+					PathingArcVec guessPath;
+					for (; itPathArc != otherPlayerGuessPlan.path.end(); itPathArc++)
+						guessPath.push_back((*itPathArc));
+
+					otherPlayerGuessPlan.id = otherPlayerGuessState.plan.id;
+					otherPlayerGuessPlan.path = guessPath;
+					otherPlayerGuessPlan.node = guessNode;
+
+					mPlayerPlanTime[pPlayerActor->GetId()] = 0;
+					SetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
+					SetPlayerGuessUpdated(pOtherPlayerActor->GetId(), false);
+				}
+			}
+
+			if (otherPlayerGuessPlan.path.size())
+			{
+				PathingArc* guessPath = (*otherPlayerGuessPlan.path.begin());
+				if (mPlayerPlanTime[pPlayerActor->GetId()] >= guessPath->GetWeight())
+				{
+					eastl::vector<ActorId> actors;
+					PathingTransition* guessTransition = 
+						otherPlayerGuessPlan.node->FindTransition(guessPath->GetId());
+					for (PathingNode* nodeTransition : guessTransition->GetNodes())
+						if (nodeTransition->GetActorId() != INVALID_ACTOR_ID)
+							actors.push_back(nodeTransition->GetActorId());
+					if (otherPlayerGuessPlan.node->GetActorId() != INVALID_ACTOR_ID)
+						actors.push_back(otherPlayerGuessPlan.node->GetActorId());
+
+					otherPlayerGuessPlan.node = guessPath->GetNode();
+					mPlayerPlanTime[pPlayerActor->GetId()] -= guessPath->GetWeight();
+					otherPlayerGuessPlan.path.erase(otherPlayerGuessPlan.path.begin());
+
+					for (ActorId actor : actors)
+					{
+						eastl::vector<eastl::shared_ptr<Actor>>::iterator itItem = 
+							otherPlayerGuessState.items.begin();
+						for (; itItem != otherPlayerGuessState.items.end(); itItem++)
+						{
+							eastl::shared_ptr<Actor> pItemActor = (*itItem);
+							if (pItemActor->GetId() == actor)
 							{
-								guessNode = otherPlayerGuessPlan.node;
-								itPathArc = itArc;
-								itPathArc++;
+								if (pItemActor->GetType() == "Weapon")
+								{
+									eastl::shared_ptr<WeaponPickup> pWeaponPickup =
+										pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
+									//printf("\n current guess item weapon %u ", pWeaponPickup->GetCode());
+
+									// add the weapon
+									otherPlayerGuessState.stats[STAT_WEAPONS] |= (1 << pWeaponPickup->GetCode());
+
+									// add ammo
+									otherPlayerGuessState.ammo[pWeaponPickup->GetCode()] += 
+										otherPlayerGuessState.itemAmount[pItemActor];
+
+									guessItems[actor] = (float)pWeaponPickup->GetWait() / 1000.f;
+								}
+								else if (pItemActor->GetType() == "Ammo")
+								{
+									eastl::shared_ptr<AmmoPickup> pAmmoPickup =
+										pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
+									//printf("\n current guess item ammo %u ", pAmmoPickup->GetCode());
+
+									otherPlayerGuessState.ammo[pAmmoPickup->GetCode()] += 
+										otherPlayerGuessState.itemAmount[pItemActor];
+
+									guessItems[actor] = (float)pAmmoPickup->GetWait() / 1000.f;
+								}
+								else if (pItemActor->GetType() == "Armor")
+								{
+									eastl::shared_ptr<ArmorPickup> pArmorPickup =
+										pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
+									//printf("\n current guess item armor %u ", pArmorPickup->GetCode());
+
+									otherPlayerGuessState.stats[STAT_ARMOR] += 
+										otherPlayerGuessState.itemAmount[pItemActor];
+
+									guessItems[actor] = (float)pArmorPickup->GetWait() / 1000.f;
+								}
+								else if (pItemActor->GetType() == "Health")
+								{
+									eastl::shared_ptr<HealthPickup> pHealthPickup =
+										pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
+									//printf("\n current guess item health %u ", pHealthPickup->GetCode());
+
+									otherPlayerGuessState.stats[STAT_HEALTH] += 
+										otherPlayerGuessState.itemAmount[pItemActor];
+
+									guessItems[actor] = (float)pHealthPickup->GetWait() / 1000.f;
+								}
+
+								otherPlayerGuessState.items.erase(itItem);
+								otherPlayerGuessState.itemAmount.erase(pItemActor);
+								otherPlayerGuessState.itemWeight.erase(pItemActor);
 								break;
 							}
 						}
-
-						PathingArcVec guessPath;
-						for (; itPathArc != otherPlayerGuessPlan.path.end(); itPathArc++)
-							guessPath.push_back((*itPathArc));
-
-						otherPlayerGuessPlan.id = otherPlayerGuessState.plan.id;
-						otherPlayerGuessPlan.path = guessPath;
-						otherPlayerGuessPlan.node = guessNode;
-
-						mPlayerPlanTime[pPlayerActor->GetId()] = 0;
-						SetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
-						SetPlayerGuessUpdated(pOtherPlayerActor->GetId(), false);
 					}
+
+					//printf("\n current guess node %u ", guessNode->GetId());
+					SetPlayerGuessState(pOtherPlayerActor->GetId(), otherPlayerGuessState);
+					SetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
+					SetPlayerGuessItems(pOtherPlayerActor->GetId(), guessItems);
 				}
+			}
 
-				if (otherPlayerGuessPlan.path.size())
+			eastl::shared_ptr<TransformComponent> pTransformComponent(
+				pPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+			if (pTransformComponent)
+			{
+				bool resetGuessPlayer = false;
+				eastl::vector<ActorId> removeGuessItems;
+
+				Vector3<float> playerPos = pTransformComponent->GetTransform().GetTranslation();
+				playerPos += Vector3<float>::Unit(YAW) * (float)pPlayerActor->GetState().viewHeight;
+				for (auto guessItem : guessItems)
 				{
-					PathingArc* guessPath = (*otherPlayerGuessPlan.path.begin());
-					if (mPlayerPlanTime[pPlayerActor->GetId()] >= guessPath->GetWeight())
+					guessItems[guessItem.first] -= deltaMs / 1000.f;
+
+					eastl::shared_ptr<Actor> pItemActor(GameLogic::Get()->GetActor(guessItem.first).lock());
+					eastl::shared_ptr<TransformComponent> pItemTransform(
+						pItemActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+					Vector3<float> itemPos = pItemTransform->GetTransform().GetTranslation();
+
+					eastl::vector<ActorId> collisionActors;
+					eastl::vector<Vector3<float>> collisions, collisionNormals;
+					GameLogic::Get()->GetGamePhysics()->CastRay(
+						playerPos, itemPos, collisionActors, collisions, collisionNormals);
+
+					ActorId closestCollisionId = INVALID_ACTOR_ID;
+					Vector3<float> closestCollision = itemPos;
+					for (unsigned int i = 0; i < collisionActors.size(); i++)
 					{
-						eastl::vector<ActorId> actors;
-						PathingTransition* guessTransition = 
-							otherPlayerGuessPlan.node->FindTransition(guessPath->GetId());
-						for (PathingNode* nodeTransition : guessTransition->GetNodes())
-							if (nodeTransition->GetActorId() != INVALID_ACTOR_ID)
-								actors.push_back(nodeTransition->GetActorId());
-						if (otherPlayerGuessPlan.node->GetActorId() != INVALID_ACTOR_ID)
-							actors.push_back(otherPlayerGuessPlan.node->GetActorId());
-
-						otherPlayerGuessPlan.node = guessPath->GetNode();
-						mPlayerPlanTime[pPlayerActor->GetId()] -= guessPath->GetWeight();
-						otherPlayerGuessPlan.path.erase(otherPlayerGuessPlan.path.begin());
-
-						for (ActorId actor : actors)
+						if (collisionActors[i] != pPlayerActor->GetId())
 						{
-							eastl::vector<eastl::shared_ptr<Actor>>::iterator itItem = 
-								otherPlayerGuessState.items.begin();
-							for (; itItem != otherPlayerGuessState.items.end(); itItem++)
+							if (closestCollision != NULL)
 							{
-								eastl::shared_ptr<Actor> pItemActor = (*itItem);
-								if (pItemActor->GetId() == actor)
-								{
-									if (pItemActor->GetType() == "Weapon")
-									{
-										eastl::shared_ptr<WeaponPickup> pWeaponPickup =
-											pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
-										//printf("\n current guess item weapon %u ", pWeaponPickup->GetCode());
-
-										// add the weapon
-										otherPlayerGuessState.stats[STAT_WEAPONS] |= (1 << pWeaponPickup->GetCode());
-
-										// add ammo
-										otherPlayerGuessState.ammo[pWeaponPickup->GetCode()] += 
-											otherPlayerGuessState.itemAmount[pItemActor];
-
-										guessItems[actor] = (float)pWeaponPickup->GetWait() / 1000.f;
-									}
-									else if (pItemActor->GetType() == "Ammo")
-									{
-										eastl::shared_ptr<AmmoPickup> pAmmoPickup =
-											pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
-										//printf("\n current guess item ammo %u ", pAmmoPickup->GetCode());
-
-										otherPlayerGuessState.ammo[pAmmoPickup->GetCode()] += 
-											otherPlayerGuessState.itemAmount[pItemActor];
-
-										guessItems[actor] = (float)pAmmoPickup->GetWait() / 1000.f;
-									}
-									else if (pItemActor->GetType() == "Armor")
-									{
-										eastl::shared_ptr<ArmorPickup> pArmorPickup =
-											pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
-										//printf("\n current guess item armor %u ", pArmorPickup->GetCode());
-
-										otherPlayerGuessState.stats[STAT_ARMOR] += 
-											otherPlayerGuessState.itemAmount[pItemActor];
-
-										guessItems[actor] = (float)pArmorPickup->GetWait() / 1000.f;
-									}
-									else if (pItemActor->GetType() == "Health")
-									{
-										eastl::shared_ptr<HealthPickup> pHealthPickup =
-											pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
-										//printf("\n current guess item health %u ", pHealthPickup->GetCode());
-
-										otherPlayerGuessState.stats[STAT_HEALTH] += 
-											otherPlayerGuessState.itemAmount[pItemActor];
-
-										guessItems[actor] = (float)pHealthPickup->GetWait() / 1000.f;
-									}
-
-									otherPlayerGuessState.items.erase(itItem);
-									otherPlayerGuessState.itemAmount.erase(pItemActor);
-									otherPlayerGuessState.itemWeight.erase(pItemActor);
-									break;
-								}
-							}
-						}
-
-						//printf("\n current guess node %u ", guessNode->GetId());
-						SetPlayerGuessState(pOtherPlayerActor->GetId(), otherPlayerGuessState);
-						SetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
-						SetPlayerGuessItems(pOtherPlayerActor->GetId(), guessItems);
-					}
-				}
-
-				eastl::shared_ptr<TransformComponent> pTransformComponent(
-					pPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
-				if (pTransformComponent)
-				{
-					bool resetGuessPlayer = false;
-					eastl::vector<ActorId> removeGuessItems;
-
-					Vector3<float> playerPos = pTransformComponent->GetTransform().GetTranslation();
-					playerPos += Vector3<float>::Unit(YAW) * (float)pPlayerActor->GetState().viewHeight;
-					for (auto guessItem : guessItems)
-					{
-						guessItems[guessItem.first] -= deltaMs / 1000.f;
-
-						eastl::shared_ptr<Actor> pItemActor(GameLogic::Get()->GetActor(guessItem.first).lock());
-						eastl::shared_ptr<TransformComponent> pItemTransform(
-							pItemActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
-						Vector3<float> itemPos = pItemTransform->GetTransform().GetTranslation();
-
-						eastl::vector<ActorId> collisionActors;
-						eastl::vector<Vector3<float>> collisions, collisionNormals;
-						GameLogic::Get()->GetGamePhysics()->CastRay(
-							playerPos, itemPos, collisionActors, collisions, collisionNormals);
-
-						ActorId closestCollisionId = INVALID_ACTOR_ID;
-						Vector3<float> closestCollision = itemPos;
-						for (unsigned int i = 0; i < collisionActors.size(); i++)
-						{
-							if (collisionActors[i] != pPlayerActor->GetId())
-							{
-								if (closestCollision != NULL)
-								{
-									if (Length(closestCollision - playerPos) > Length(collisions[i] - playerPos))
-									{
-										closestCollisionId = collisionActors[i];
-										closestCollision = collisions[i];
-									}
-								}
-								else
+								if (Length(closestCollision - playerPos) > Length(collisions[i] - playerPos))
 								{
 									closestCollisionId = collisionActors[i];
 									closestCollision = collisions[i];
 								}
 							}
-						}
-
-						if (closestCollisionId == pItemActor->GetId())
-						{
-							//check if the item is visible
-							if (pItemActor->GetType() == "Weapon")
+							else
 							{
-								eastl::shared_ptr<WeaponPickup> pWeaponPickup =
-									pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
-
-								if (pWeaponPickup->mRespawnTime <= 0.f)
-								{
-									//distrust the guessing plan and reset guess player status
-									resetGuessPlayer = true;
-									break;
-								}
+								closestCollisionId = collisionActors[i];
+								closestCollision = collisions[i];
 							}
-							else if (pItemActor->GetType() == "Ammo")
-							{
-								eastl::shared_ptr<AmmoPickup> pAmmoPickup =
-									pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
-
-								if (pAmmoPickup->mRespawnTime <= 0.f)
-								{
-									//distrust the guessing plan and reset guess player status
-									resetGuessPlayer = true;
-									break;
-								}
-							}
-							else if (pItemActor->GetType() == "Armor")
-							{
-								eastl::shared_ptr<ArmorPickup> pArmorPickup =
-									pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
-
-								if (pArmorPickup->mRespawnTime <= 0.f)
-								{
-									//distrust the guessing plan and reset guess player status
-									resetGuessPlayer = true;
-									break;
-								}
-							}
-							else if (pItemActor->GetType() == "Health")
-							{
-								eastl::shared_ptr<HealthPickup> pHealthPickup =
-									pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
-
-								if (pHealthPickup->mRespawnTime <= 0.f)
-								{
-									//distrust the guessing plan and reset guess player status
-									resetGuessPlayer = true;
-									break;
-								}
-							}
-						}
-
-						if (guessItems[guessItem.first] <= 0)
-							removeGuessItems.push_back(guessItem.first);
-					}
-
-					Vector3<float> currentPosition = pTransformComponent->GetPosition();
-					PathingNode* currentNode = mPathingGraph->FindClosestNode(currentPosition);
-
-					eastl::shared_ptr<TransformComponent> pOtherPlayerTransformComponent(
-						pOtherPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
-					if (pOtherPlayerTransformComponent)
-					{
-						PathingNode* otherPlayerNode =
-							mPathingGraph->FindClosestNode(pOtherPlayerTransformComponent->GetPosition());
-						if (currentNode->IsVisibleNode(otherPlayerNode))
-						{
-							//update the player with the current status
-							mPlayerTime[pPlayerActor->GetId()] = 0.f;
-						}
-						else if (currentNode->IsVisibleNode(otherPlayerGuessPlan.node))
-						{
-							//distrust the guessing plan and reset guess player status
-							resetGuessPlayer = true;
 						}
 					}
 
-					if (resetGuessPlayer)
+					if (closestCollisionId == pItemActor->GetId())
 					{
-						RemovePlayerGuessItems(pOtherPlayerActor->GetId());
+						//check if the item is visible
+						if (pItemActor->GetType() == "Weapon")
+						{
+							eastl::shared_ptr<WeaponPickup> pWeaponPickup =
+								pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
 
-						//no idea where the player is located take any random spawn position
-						Transform spawnTransform;
-						game->SelectSpawnPoint(currentPosition, spawnTransform);
-						PathingNode* otherPlayerNode = mPathingGraph->FindClosestNode(spawnTransform.GetTranslation());
+							if (pWeaponPickup->mRespawnTime <= 0.f)
+							{
+								//distrust the guessing plan and reset guess player status
+								resetGuessPlayer = true;
+								break;
+							}
+						}
+						else if (pItemActor->GetType() == "Ammo")
+						{
+							eastl::shared_ptr<AmmoPickup> pAmmoPickup =
+								pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
+
+							if (pAmmoPickup->mRespawnTime <= 0.f)
+							{
+								//distrust the guessing plan and reset guess player status
+								resetGuessPlayer = true;
+								break;
+							}
+						}
+						else if (pItemActor->GetType() == "Armor")
+						{
+							eastl::shared_ptr<ArmorPickup> pArmorPickup =
+								pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
+
+							if (pArmorPickup->mRespawnTime <= 0.f)
+							{
+								//distrust the guessing plan and reset guess player status
+								resetGuessPlayer = true;
+								break;
+							}
+						}
+						else if (pItemActor->GetType() == "Health")
+						{
+							eastl::shared_ptr<HealthPickup> pHealthPickup =
+								pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
+
+							if (pHealthPickup->mRespawnTime <= 0.f)
+							{
+								//distrust the guessing plan and reset guess player status
+								resetGuessPlayer = true;
+								break;
+							}
+						}
+					}
+
+					if (guessItems[guessItem.first] <= 0)
+						removeGuessItems.push_back(guessItem.first);
+				}
+
+				Vector3<float> currentPosition = pTransformComponent->GetPosition();
+				PathingNode* currentNode = mPathingGraph->FindClosestNode(currentPosition);
+
+				eastl::shared_ptr<TransformComponent> pOtherPlayerTransformComponent(
+					pOtherPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+				if (pOtherPlayerTransformComponent)
+				{
+					PathingNode* otherPlayerNode =
+						mPathingGraph->FindClosestNode(pOtherPlayerTransformComponent->GetPosition());
+					if (currentNode->IsVisibleNode(otherPlayerNode))
+					{
+						//update the player with the current status
+						guessItems.clear();
+						removeGuessItems.clear();
 
 						//what i am guessing about the other player
-						otherPlayerGuessPlan = NodePlan(otherPlayerNode, PathingArcVec());
+						NodePlan otherPlayerGuessPlan;
+						GetPlayerPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
 						SetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
 						SetPlayerGuessState(pOtherPlayerActor->GetId(), pOtherPlayerActor);
 						SetPlayerGuessUpdated(pOtherPlayerActor->GetId(), false);
 
 						mPlayerPlanTime[pPlayerActor->GetId()] = 0.f;
 					}
-					else
+					else if (currentNode->IsVisibleNode(otherPlayerGuessPlan.node))
 					{
-						for (ActorId removeGuessItem : removeGuessItems)
-							guessItems.erase(removeGuessItem);
-						SetPlayerGuessItems(pOtherPlayerActor->GetId(), guessItems);
+						//distrust the guessing plan and reset guess player status
+						resetGuessPlayer = true;
 					}
 				}
-			}
-		}
-		else
-		{
-			for (eastl::shared_ptr<PlayerActor> pOtherPlayerActor : playerActors)
-			{
-				if (pPlayerActor->GetId() == pOtherPlayerActor->GetId())
-					continue;
 
-				eastl::shared_ptr<TransformComponent> pTransformComponent(
-					pPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
-				if (pTransformComponent)
+				if (resetGuessPlayer)
 				{
-					Vector3<float> currentPosition = pTransformComponent->GetPosition();
-					PathingNode* currentNode = mPathingGraph->FindClosestNode(currentPosition);
+					RemovePlayerGuessItems(pOtherPlayerActor->GetId());
 
-					eastl::shared_ptr<TransformComponent> pOtherPlayerTransformComponent(
-						pOtherPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
-					if (pOtherPlayerTransformComponent)
-					{
-						PathingNode* otherPlayerNode =
-							mPathingGraph->FindClosestNode(pOtherPlayerTransformComponent->GetPosition());
-						if (currentNode->IsVisibleNode(otherPlayerNode))
-						{
-							//update the player with the current status
-							mPlayerTime[pPlayerActor->GetId()] = 0.f;
-						}
-					}
+					//no idea where the player is located take any random spawn position
+					Transform spawnTransform;
+					game->SelectSpawnPoint(currentPosition, spawnTransform);
+					PathingNode* otherPlayerNode = mPathingGraph->FindClosestNode(spawnTransform.GetTranslation());
+
+					//what i am guessing about the other player
+					otherPlayerGuessPlan = NodePlan(otherPlayerNode, PathingArcVec());
+					SetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
+					SetPlayerGuessState(pOtherPlayerActor->GetId(), pOtherPlayerActor);
+					SetPlayerGuessUpdated(pOtherPlayerActor->GetId(), false);
+
+					mPlayerPlanTime[pPlayerActor->GetId()] = 0.f;
 				}
-
-				RemovePlayerGuessItems(pOtherPlayerActor->GetId());
-
-				//what i am guessing about the other player
-				NodePlan otherPlayerGuessPlan;
-				GetPlayerPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
-				SetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
-				SetPlayerGuessState(pOtherPlayerActor->GetId(), pOtherPlayerActor);
-				SetPlayerGuessUpdated(pOtherPlayerActor->GetId(), false);
-
-				mPlayerPlanTime[pPlayerActor->GetId()] = 0.f;
+				else
+				{
+					for (ActorId removeGuessItem : removeGuessItems)
+						guessItems.erase(removeGuessItem);
+					SetPlayerGuessItems(pOtherPlayerActor->GetId(), guessItems);
+				}
 			}
 		}
 	}
