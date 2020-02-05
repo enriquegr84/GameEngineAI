@@ -412,9 +412,20 @@ void QuakeLogic::JumpActorDelegate(BaseEventDataPtr pEventData)
 		{
 			pPlayerActor->GetAction().triggerPush = INVALID_ACTOR_ID;
 
-			// play jumppad sound
-			EventManager::Get()->TriggerEvent(
-				eastl::make_shared<EventDataPlaySound>("audio/quake/sound/world/jumppad.wav"));
+			eastl::shared_ptr<TransformComponent> pPlayerTransform(
+				pPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+			GameApplication* gameApp = (GameApplication*)Application::App;
+			eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+			Transform cameraTransform = camera->GetAbsoluteTransform();
+
+			// take into consideration within a certain radius
+			if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+			{
+				// play jumppad sound
+				EventManager::Get()->TriggerEvent(
+					eastl::make_shared<EventDataPlaySound>("audio/quake/sound/world/jumppad.wav"));
+			}
 		}
 		else
 		{
@@ -422,9 +433,14 @@ void QuakeLogic::JumpActorDelegate(BaseEventDataPtr pEventData)
 			{
 				pPlayerActor->GetState().jumpTime = 200;
 
-				// play jump sound
-				EventManager::Get()->TriggerEvent(
-					eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/jump1.wav"));
+				GameApplication* gameApp = (GameApplication*)Application::App;
+				if (gameApp->GetHumanView()->mCamera->GetTarget() &&
+					gameApp->GetHumanView()->mCamera->GetTarget()->GetId() == pPlayerActor->GetId())
+				{
+					// play jump sound
+					EventManager::Get()->TriggerEvent(
+						eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/jump1.wav"));
+				}
 			}
 		}
 	}
@@ -457,9 +473,20 @@ void QuakeLogic::TeleportActorDelegate(BaseEventDataPtr pEventData)
 		if (pPhysicalComponent)
 			pPhysicalComponent->SetTransform(pTeleporterTrigger->GetTarget());
 
-		// play teleporter sound
-		EventManager::Get()->TriggerEvent(
-			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/world/teleout.ogg"));
+		eastl::shared_ptr<TransformComponent> pPlayerTransform(
+			pPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+		GameApplication* gameApp = (GameApplication*)Application::App;
+		eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+		Transform cameraTransform = camera->GetAbsoluteTransform();
+
+		// take into consideration within a certain radius
+		if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+		{
+			// play teleporter sound
+			EventManager::Get()->TriggerEvent(
+				eastl::make_shared<EventDataPlaySound>("audio/quake/sound/world/teleout.ogg"));
+		}
 	}
 }
 
@@ -492,9 +519,20 @@ void QuakeLogic::SpawnActorDelegate(BaseEventDataPtr pEventData)
 		if (pPhysicalComponent)
 			pPhysicalComponent->SetTransform(spawnTransform);
 
-		// play teleporter sound
-		EventManager::Get()->TriggerEvent(
-			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/world/teleout.ogg"));
+		eastl::shared_ptr<TransformComponent> pPlayerTransform(
+			pPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+		GameApplication* gameApp = (GameApplication*)Application::App;
+		eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+		Transform cameraTransform = camera->GetAbsoluteTransform();
+
+		// take into consideration within a certain radius
+		if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+		{
+			// play teleporter sound
+			EventManager::Get()->TriggerEvent(
+				eastl::make_shared<EventDataPlaySound>("audio/quake/sound/world/teleout.ogg"));
+		}
 	}
 }
 
@@ -505,7 +543,7 @@ void QuakeLogic::MoveActorDelegate(BaseEventDataPtr pEventData)
 
 	eastl::shared_ptr<PlayerActor> pPlayerActor(
 		eastl::dynamic_shared_pointer_cast<PlayerActor>(
-			GameLogic::Get()->GetActor(pCastEventData->GetId()).lock()));
+		GameLogic::Get()->GetActor(pCastEventData->GetId()).lock()));
 	if (pPlayerActor)
 	{
 		eastl::shared_ptr<PhysicComponent> pPhysicalComponent =
@@ -520,9 +558,14 @@ void QuakeLogic::MoveActorDelegate(BaseEventDataPtr pEventData)
 			{
 				pPlayerActor->GetState().moveTime = 400;
 
-				// play footstep sound
-				EventManager::Get()->TriggerEvent(
-					eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/footsteps/boot1.ogg"));
+				GameApplication* gameApp = (GameApplication*)Application::App;
+				if (gameApp->GetHumanView()->mCamera->GetTarget() &&
+					gameApp->GetHumanView()->mCamera->GetTarget()->GetId() == pPlayerActor->GetId())
+				{
+					// play footstep sound
+					EventManager::Get()->TriggerEvent(
+						eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/footsteps/boot1.ogg"));
+				}
 			}
 		}
 	}
@@ -1450,9 +1493,20 @@ void Die(int damage, MeansOfDeath meansOfDeath,
 	EventManager::Get()->TriggerEvent(
 		eastl::make_shared<QuakeEventDataDeadActor>(player->GetId()));
 
-	// play pain sound
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/death1.wav"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		// play pain sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/death1.wav"));
+	}
 }
 
 
@@ -1678,29 +1732,40 @@ void Damage(int damage, int dflags, int mod,
 			//targ->pain(targ, attacker, take);
 			DamageFeedback(attacker);
 
-			if (target->GetState().stats[STAT_HEALTH] < 25) 
+			eastl::shared_ptr<TransformComponent> pPlayerTransform(
+				target->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+			GameApplication* gameApp = (GameApplication*)Application::App;
+			eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+			Transform cameraTransform = camera->GetAbsoluteTransform();
+
+			// take into consideration within a certain radius
+			if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
 			{
-				// play pain sound
-				EventManager::Get()->TriggerEvent(
-					eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/pain25_1.wav"));
-			}
-			else if (target->GetState().stats[STAT_HEALTH] < 50) 
-			{
-				// play pain sound
-				EventManager::Get()->TriggerEvent(
-					eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/pain50_1.wav"));
-			}
-			else if (target->GetState().stats[STAT_HEALTH] < 75) 
-			{
-				// play pain sound
-				EventManager::Get()->TriggerEvent(
-					eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/pain75_1.wav"));
-			}
-			else 
-			{
-				// play pain sound
-				EventManager::Get()->TriggerEvent(
-					eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/pain100_1.wav"));
+				if (target->GetState().stats[STAT_HEALTH] < 25)
+				{
+					// play pain sound
+					EventManager::Get()->TriggerEvent(
+						eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/pain25_1.wav"));
+				}
+				else if (target->GetState().stats[STAT_HEALTH] < 50)
+				{
+					// play pain sound
+					EventManager::Get()->TriggerEvent(
+						eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/pain50_1.wav"));
+				}
+				else if (target->GetState().stats[STAT_HEALTH] < 75)
+				{
+					// play pain sound
+					EventManager::Get()->TriggerEvent(
+						eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/pain75_1.wav"));
+				}
+				else
+				{
+					// play pain sound
+					EventManager::Get()->TriggerEvent(
+						eastl::make_shared<EventDataPlaySound>("audio/quake/sound/player/pain100_1.wav"));
+				}
 			}
 		}
 	}
@@ -1845,9 +1910,20 @@ void QuakeLogic::GauntletAttack(
 	//set muzzle location relative to pivoting eye
 	Vector3<float> end = muzzle + forward * 32.f;
 
-	// play attack sound
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/melee/fstrun.ogg"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		// play attack sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/melee/fstrun.ogg"));
+	}
 
 	eastl::vector<ActorId> collisionActors;
 	eastl::vector<Vector3<float>> collisions, collisionNormals;
@@ -1915,9 +1991,20 @@ void QuakeLogic::BulletFire(
 	end += right * r;
 	end += up * u;
 
-	// play firing sound
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/machinegun/ric1.ogg"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		// play firing sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/machinegun/ric1.ogg"));
+	}
 
 	eastl::vector<ActorId> collisionActors;
 	eastl::vector<Vector3<float>> collisions, collisionNormals;
@@ -2042,9 +2129,20 @@ void QuakeLogic::ShotgunFire(
 	const Vector3<float>& muzzle, const Vector3<float>& forward,
 	const Vector3<float>& right, const Vector3<float>& up)
 {
-	// play firing sound
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/shotgun/sshotf1b.ogg"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		// play firing sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/shotgun/sshotf1b.ogg"));
+	}
 
 	// generate the "random" spread pattern
 	for (unsigned int i = 0; i < DEFAULT_SHOTGUN_COUNT; i++)
@@ -2108,9 +2206,20 @@ void QuakeLogic::GrenadeLauncherFire(
 		}
 	}
 
-	// play firing sound
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/grenade/grenlf1a.ogg"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		// play firing sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/grenade/grenlf1a.ogg"));
+	}
 }
 
 /*
@@ -2161,9 +2270,20 @@ void QuakeLogic::RocketLauncherFire(
 		}
 	}
 
-	// play firing sound
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/rocket/rocklf1a.ogg"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		// play firing sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/rocket/rocklf1a.ogg"));
+	}
 }
 
 
@@ -2215,9 +2335,20 @@ void QuakeLogic::PlasmagunFire(
 		}
 	}
 
-	// play firing sound
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/plasma/hyprbf1a.ogg"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		// play firing sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/plasma/hyprbf1a.ogg"));
+	}
 }
 
 /*
@@ -2233,9 +2364,20 @@ void QuakeLogic::RailgunFire(const eastl::shared_ptr<PlayerActor>& player,
 {
 	Vector3<float> end = muzzle + forward * 8192.f * 16.f;
 
-	// play firing sound
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/railgun/railgf1a.ogg"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		// play firing sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/railgun/railgf1a.ogg"));
+	}
 
 	eastl::vector<ActorId> collisionActors;
 	eastl::vector<Vector3<float>> collisions, collisionNormals;
@@ -2312,9 +2454,20 @@ void QuakeLogic::LightningFire(const eastl::shared_ptr<PlayerActor>& player,
 {
 	Vector3<float> end = muzzle + forward * (float)LIGHTNING_RANGE;
 
-	// play firing sound
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/lightning/lg_hum.ogg"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		// play firing sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/weapons/lightning/lg_hum.ogg"));
+	}
 
 	eastl::vector<ActorId> collisionActors;
 	eastl::vector<Vector3<float>> collisions, collisionNormals;
@@ -2644,8 +2797,19 @@ int PickupAmmo(const eastl::shared_ptr<PlayerActor>& player, const eastl::shared
 	if (player->GetState().ammo[ammo->GetCode()] > 200)
 		player->GetState().ammo[ammo->GetCode()] = 200;
 
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/am_pkup.wav"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/am_pkup.wav"));
+	}
 
 	return ammo->GetWait();
 }
@@ -2660,9 +2824,20 @@ int PickupWeapon(const eastl::shared_ptr<PlayerActor>& player, const eastl::shar
 	if (player->GetState().ammo[weapon->GetCode()] > 200)
 		player->GetState().ammo[weapon->GetCode()] = 200;
 
-	// play weapon pickup sound
-	EventManager::Get()->TriggerEvent(
-		eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/w_pkup.wav"));
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	{
+		// play weapon pickup sound
+		EventManager::Get()->TriggerEvent(
+			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/w_pkup.wav"));
+	}
 
 	return weapon->GetWait();
 }
@@ -2679,26 +2854,37 @@ int PickupHealth(const eastl::shared_ptr<PlayerActor>& player, const eastl::shar
 	if (player->GetState().stats[STAT_HEALTH] > max)
 		player->GetState().stats[STAT_HEALTH] = max;
 
-	// play health pickup sound
-	if (health->GetCode() == 1)
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
 	{
-		EventManager::Get()->TriggerEvent(
-			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/items/n_health.wav"));
-	}
-	else if (health->GetCode() == 2)
-	{
-		EventManager::Get()->TriggerEvent(
-			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/items/l_health.wav"));
-	}
-	else if (health->GetCode() == 3)
-	{
-		EventManager::Get()->TriggerEvent(
-			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/items/m_health.wav"));
-	}
-	else if (health->GetCode() == 4)
-	{
-		EventManager::Get()->TriggerEvent(
-			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/items/s_health.wav"));
+		// play health pickup sound
+		if (health->GetCode() == 1)
+		{
+			EventManager::Get()->TriggerEvent(
+				eastl::make_shared<EventDataPlaySound>("audio/quake/sound/items/n_health.wav"));
+		}
+		else if (health->GetCode() == 2)
+		{
+			EventManager::Get()->TriggerEvent(
+				eastl::make_shared<EventDataPlaySound>("audio/quake/sound/items/l_health.wav"));
+		}
+		else if (health->GetCode() == 3)
+		{
+			EventManager::Get()->TriggerEvent(
+				eastl::make_shared<EventDataPlaySound>("audio/quake/sound/items/m_health.wav"));
+		}
+		else if (health->GetCode() == 4)
+		{
+			EventManager::Get()->TriggerEvent(
+				eastl::make_shared<EventDataPlaySound>("audio/quake/sound/items/s_health.wav"));
+		}
 	}
 
 	return health->GetWait();
@@ -2710,21 +2896,32 @@ int PickupArmor(const eastl::shared_ptr<PlayerActor>& player, const eastl::share
 	if (player->GetState().stats[STAT_ARMOR] > player->GetState().stats[STAT_MAX_HEALTH] * 2)
 		player->GetState().stats[STAT_ARMOR] = player->GetState().stats[STAT_MAX_HEALTH] * 2;
 
-	// play armor pickup sound
-	if (armor->GetCode() == 1)
+	eastl::shared_ptr<TransformComponent> pPlayerTransform(
+		player->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+
+	GameApplication* gameApp = (GameApplication*)Application::App;
+	eastl::shared_ptr<CameraNode> camera = gameApp->GetHumanView()->mCamera;
+	Transform cameraTransform = camera->GetAbsoluteTransform();
+
+	// take into consideration within a certain radius
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
 	{
-		EventManager::Get()->TriggerEvent(
-			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/ar2_pkup.wav"));
-	}
-	else if (armor->GetCode() == 2)
-	{
-		EventManager::Get()->TriggerEvent(
-			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/ar2_pkup.wav"));
-	}
-	else if (armor->GetCode() == 3)
-	{
-		EventManager::Get()->TriggerEvent(
-			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/ar1_pkup.wav"));
+		// play armor pickup sound
+		if (armor->GetCode() == 1)
+		{
+			EventManager::Get()->TriggerEvent(
+				eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/ar2_pkup.wav"));
+		}
+		else if (armor->GetCode() == 2)
+		{
+			EventManager::Get()->TriggerEvent(
+				eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/ar2_pkup.wav"));
+		}
+		else if (armor->GetCode() == 3)
+		{
+			EventManager::Get()->TriggerEvent(
+				eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/ar1_pkup.wav"));
+		}
 	}
 
 	return armor->GetWait();

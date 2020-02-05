@@ -970,11 +970,11 @@ void QuakeAIManager::DetectActor(eastl::shared_ptr<PlayerActor> pPlayerActor, ea
 		if (pOtherPlayerActor->GetId() != pPlayerActor->GetId())
 		{
 			// take into consideration within a certain radius
-			eastl::shared_ptr<TransformComponent> pPlayerTransform(
-				pPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
+			eastl::shared_ptr<TransformComponent> pItemTransform(
+				pItemActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
 			eastl::shared_ptr<TransformComponent> pOtherPlayerTransform(
 				pOtherPlayerActor->GetComponent<TransformComponent>(TransformComponent::Name).lock());
-			if (Length(pPlayerTransform->GetPosition() - pOtherPlayerTransform->GetPosition()) > 700.f)
+			if (Length(pItemTransform->GetPosition() - pOtherPlayerTransform->GetPosition()) > 700.f)
 				continue;
 
 			mPlayerPlanTime[pOtherPlayerActor->GetId()] = 0.f;

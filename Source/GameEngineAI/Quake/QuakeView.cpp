@@ -2096,9 +2096,8 @@ void QuakeHumanView::SetControlledActorDelegate(BaseEventDataPtr pEventData)
 {
     eastl::shared_ptr<QuakeEventDataSetControlledActor> pCastEventData =
 		eastl::static_pointer_cast<QuakeEventDataSetControlledActor>(pEventData);
-    //SetControlledActor(pCastEventData->GetActorId());
 
-	HumanView::SetControlledActor(mGameCameraController->GetCamera()->GetId());
+	HumanView::SetControlledActor(pCastEventData->GetActorId());
 	mKeyboardHandler = mGameCameraController;
 	mMouseHandler = mGameCameraController;
 
