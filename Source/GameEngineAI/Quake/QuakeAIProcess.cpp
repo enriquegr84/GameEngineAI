@@ -132,10 +132,10 @@ void QuakeAIProcess::Visibility(
 		(*visibleHeight) /= (*visibleTime);
 
 		//lets put a minimum of visible time if we have seen the player along the path
-		if (totalTime < 4.0f)
+		if (totalTime < 2.0f)
 		{
 			float visibleWeight = (*visibleTime) / totalTime;
-			visibleWeight = (4.0f - totalTime) * visibleWeight;
+			visibleWeight = (2.0f - totalTime) * visibleWeight;
 			(*visibleTime) += visibleWeight;
 		}
 	}
@@ -146,10 +146,10 @@ void QuakeAIProcess::Visibility(
 		(*otherVisibleHeight) /= (*otherVisibleTime);
 
 		//lets put a minimum of visible time if we have seen the player along the path
-		if (totalTime < 4.0f)
+		if (totalTime < 2.0f)
 		{
 			float otherVisibleWeight = (*otherVisibleTime) / totalTime;
-			otherVisibleWeight = (4.0f - totalTime) * otherVisibleWeight;
+			otherVisibleWeight = (2.0f - totalTime) * otherVisibleWeight;
 			(*otherVisibleTime) += otherVisibleWeight;
 		}
 	}
@@ -320,7 +320,7 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 	*/
 	unsigned int playerClusterIdx = 0;
 	unsigned int clusterSize = playerClusters.size();
-	mAIManager->PrintLogInformationDetails("\n blue player actors ");
+	mAIManager->PrintLogInformationDetails("\n player actors ");
 	//construct path based on closest actors to each cluster pathway
 	for (; playerClusterIdx < clusterSize; playerClusterIdx++)
 	{
@@ -358,7 +358,7 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 	//other player path construction
 	unsigned int otherPlayerClusterIdx = 0;
 	unsigned int otherClusterSize = otherPlayerClusters.size();
-	mAIManager->PrintLogInformationDetails("\n red player actors ");
+	mAIManager->PrintLogInformationDetails("\n other player actors ");
 	for (; otherPlayerClusterIdx < otherClusterSize; otherPlayerClusterIdx++)
 	{
 		PathingCluster* otherPlayerCluster = otherPlayerClusters[otherPlayerClusterIdx];
@@ -472,6 +472,11 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 	mOtherPlayerState.heuristic = FLT_MAX;
 	mOtherPlayerState.valid = false;
 	mAIManager->PrintLogInformationDetails("\n\n minimax other player \n");
+
+	mAIManager->PrintLogInformation("\n other player old guess plan path id " +
+		eastl::to_string(mOtherPlayerState.plan.id) + " : ");
+	for (PathingArc* pathArc : mOtherPlayerState.plan.path)
+		mAIManager->PrintLogInformation(eastl::to_string(pathArc->GetNode()->GetId()) + " ");
 
 	PathingCluster* otherPlayerCluster = NULL;
 	for (auto otherPlayerClustersState : otherPlayerClustersStates)
@@ -679,8 +684,6 @@ void QuakeAIProcess::EvaluatePlayers(NodeState& playerState, NodeState& otherPla
 	//opponent and react against it by choosing the course of actions that best counter the opponent’s play.
 	if (playerState.valid)
 	{
-		mAIManager->PrintLogInformation("\n game theory decision-making ");
-
 		PathingCluster* playerCluster = NULL;
 		if (otherPlayerCluster != NULL)
 		{
@@ -1360,7 +1363,7 @@ void QuakeAIProcess::ThreadProc( )
 
 						mExcludeActors.clear();
 						mAIManager->GetPlayerGuessItems(playerState.player, mExcludeActors);
-						EvaluatePlayers(playerState, aiPlayerState);
+						EvaluatePlayers(aiPlayerState, playerState);
 					}
 				}
 
@@ -1482,11 +1485,11 @@ void QuakeAIProcess::ThreadProc( )
 					mAIManager->PrintLogInformationDetails(info);
 				}
 
-				mAIManager->SetPlayerGuessState(mPlayerState.player, mPlayerState);
-				mAIManager->SetPlayerGuessUpdated(mPlayerState.player, true);
+				mAIManager->SetPlayerGuessState(mOtherPlayerState.player, mOtherPlayerState);
+				mAIManager->SetPlayerGuessUpdated(mOtherPlayerState.player, true);
 
-				mAIManager->SetPlayerState(mOtherPlayerState.player, mOtherPlayerState);
-				mAIManager->SetPlayerUpdated(mOtherPlayerState.player, true);
+				mAIManager->SetPlayerState(mPlayerState.player, mPlayerState);
+				mAIManager->SetPlayerUpdated(mPlayerState.player, true);
 			}
 
 			mAIManager->SetEnable(true);

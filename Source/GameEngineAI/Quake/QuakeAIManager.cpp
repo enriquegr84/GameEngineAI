@@ -169,6 +169,8 @@ QuakeAIManager::QuakeAIManager() : AIManager()
 	mLogError = std::ofstream("error.txt", std::ios::out);
 	mLogInformation = std::ofstream("info.txt", std::ios::out);
 	mLogInformationDetails = std::ofstream("infodetails.txt", std::ios::out);
+	mLogPathingInformation = std::ofstream("pathinginfo.txt", std::ios::out);
+	mLogGuessInformation = std::ofstream("guessinfo.txt", std::ios::out);
 }   // QuakeAIManager
 
 //-----------------------------------------------------------------------------
@@ -178,6 +180,8 @@ QuakeAIManager::~QuakeAIManager()
 	mLogError.close();
 	mLogInformation.close();
 	mLogInformationDetails.close();
+	mLogPathingInformation.close();
+	mLogGuessInformation.close();
 }   // ~QuakeAIManager
 
 /////////////////////////////////////////////////////////////////////////////
@@ -983,6 +987,8 @@ void QuakeAIManager::DetectActor(eastl::shared_ptr<PlayerActor> pPlayerActor, ea
 
 			NodePlan playerGuessPlan;
 			GetPlayerPlan(pPlayerActor->GetId(), playerGuessPlan);
+			playerGuessPlan = NodePlan(playerGuessPlan.node, PathingArcVec());
+
 			SetPlayerGuessPlan(pPlayerActor->GetId(), playerGuessPlan);
 			SetPlayerGuessState(pPlayerActor->GetId(), pPlayerActor);
 			SetPlayerGuessUpdated(pPlayerActor->GetId(), false);
@@ -992,7 +998,7 @@ void QuakeAIManager::DetectActor(eastl::shared_ptr<PlayerActor> pPlayerActor, ea
 
 void QuakeAIManager::PrintLogError(eastl::string error)
 {
-	mLogError << error.c_str() << std::endl;
+	mLogError << error.c_str();
 }
 
 void QuakeAIManager::PrintLogInformation(eastl::string info)
@@ -1003,6 +1009,16 @@ void QuakeAIManager::PrintLogInformation(eastl::string info)
 void QuakeAIManager::PrintLogInformationDetails(eastl::string info)
 {
 	mLogInformationDetails << info.c_str();
+}
+
+void QuakeAIManager::PrintLogPathingInformation(eastl::string info)
+{
+	mLogPathingInformation << info.c_str();
+}
+
+void QuakeAIManager::PrintLogGuessInformation(eastl::string info)
+{
+	mLogGuessInformation << info.c_str();
 }
 
 float QuakeAIManager::CalculateHeuristicItems(NodeState& playerState)
@@ -1791,6 +1807,13 @@ void QuakeAIManager::FindPath(NodeState& pNodeState,
 void QuakeAIManager::OnUpdate(unsigned long deltaMs)
 {
 	//update ai guessing system
+	Timer::RealTimeDate realTime = Timer::GetRealTimeAndDate();
+	eastl::string info = "\n\n guessing system update time " +
+		eastl::to_string(realTime.Hour) + ":" +
+		eastl::to_string(realTime.Minute) + ":" +
+		eastl::to_string(realTime.Second) + "\n";
+	PrintLogGuessInformation(info);
+
 	GameApplication* gameApp = (GameApplication*)Application::App;
 	QuakeLogic* game = static_cast<QuakeLogic *>(GameLogic::Get());
 
@@ -1800,19 +1823,138 @@ void QuakeAIManager::OnUpdate(unsigned long deltaMs)
 	{
 		mPlayerPlanTime[pPlayerActor->GetId()] += deltaMs / 1000.f;
 
+		info = "\n\n player id " + eastl::to_string(pPlayerActor->GetId()) + 
+			" planning time " + eastl::to_string(mPlayerPlanTime[pPlayerActor->GetId()]);
+		PrintLogGuessInformation(info);
+
 		for (eastl::shared_ptr<PlayerActor> pOtherPlayerActor : playerActors)
 		{
 			if (pPlayerActor->GetId() == pOtherPlayerActor->GetId())
 				continue;
 
+			info = "\n other player id " + eastl::to_string(pOtherPlayerActor->GetId());
+			PrintLogGuessInformation(info);
+
 			NodeState otherPlayerGuessState;
 			GetPlayerGuessState(pOtherPlayerActor->GetId(), otherPlayerGuessState);
+
+			info = "\n minimax guess state ";
+			PrintLogGuessInformation(info);
+			if (otherPlayerGuessState.plan.node)
+			{
+				PrintLogGuessInformation("\n other player position : " +
+					eastl::to_string(otherPlayerGuessState.plan.node->GetPos()[0]) + " " +
+					eastl::to_string(otherPlayerGuessState.plan.node->GetPos()[1]) + " " +
+					eastl::to_string(otherPlayerGuessState.plan.node->GetPos()[2]) + " ");
+				PrintLogGuessInformation("\n other player plan cluster : " +
+					eastl::to_string(otherPlayerGuessState.plan.node->GetCluster()) + " ");
+			}
+			PrintLogGuessInformation("\n other player path id " + eastl::to_string(otherPlayerGuessState.plan.id) + " : ");
+			for (PathingArc* pathArc : otherPlayerGuessState.plan.path)
+				PrintLogGuessInformation(eastl::to_string(pathArc->GetNode()->GetId()) + " ");
+			PrintLogGuessInformation("\n other player heuristic : " + eastl::to_string(otherPlayerGuessState.heuristic) + " ");
+			if (otherPlayerGuessState.weapon != WP_NONE)
+			{
+				info = "weapon : " + eastl::to_string(otherPlayerGuessState.weapon) + " ";
+				PrintLogGuessInformation(info);
+
+				info = "damage : " +
+					eastl::to_string(otherPlayerGuessState.damage[otherPlayerGuessState.weapon - 1]) + " ";
+				PrintLogGuessInformation(info);
+			}
+			if (!otherPlayerGuessState.items.empty())
+				PrintLogGuessInformation("actors : ");
+			for (eastl::shared_ptr<Actor> pItemActor : otherPlayerGuessState.items)
+			{
+				if (pItemActor->GetType() == "Weapon")
+				{
+					eastl::shared_ptr<WeaponPickup> pWeaponPickup =
+						pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
+					PrintLogGuessInformation("weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ");
+				}
+				else if (pItemActor->GetType() == "Ammo")
+				{
+					eastl::shared_ptr<AmmoPickup> pAmmoPickup =
+						pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
+					PrintLogGuessInformation("ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ");
+				}
+				else if (pItemActor->GetType() == "Armor")
+				{
+					eastl::shared_ptr<ArmorPickup> pArmorPickup =
+						pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
+					PrintLogGuessInformation("armor " + eastl::to_string(pArmorPickup->GetCode()) + " ");
+				}
+				else if (pItemActor->GetType() == "Health")
+				{
+					eastl::shared_ptr<HealthPickup> pHealthPickup =
+						pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
+					PrintLogGuessInformation("health " + eastl::to_string(pHealthPickup->GetCode()) + " ");
+				}
+			}
 
 			NodePlan otherPlayerGuessPlan;
 			GetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
 
+			info = "\n current guess plan ";
+			PrintLogGuessInformation(info);
+			if (otherPlayerGuessPlan.node)
+			{
+				PrintLogGuessInformation("\n other player position : " +
+					eastl::to_string(otherPlayerGuessPlan.node->GetPos()[0]) + " " +
+					eastl::to_string(otherPlayerGuessPlan.node->GetPos()[1]) + " " +
+					eastl::to_string(otherPlayerGuessPlan.node->GetPos()[2]) + " ");
+				PrintLogGuessInformation("\n other player plan cluster : " +
+					eastl::to_string(otherPlayerGuessPlan.node->GetCluster()) + " ");
+			}
+			PrintLogGuessInformation("\n other player path id " + eastl::to_string(otherPlayerGuessPlan.id) + " : ");
+			for (PathingArc* pathArc : otherPlayerGuessPlan.path)
+				PrintLogGuessInformation(eastl::to_string(pathArc->GetNode()->GetId()) + " ");
+
 			eastl::map<ActorId, float> guessItems;
 			GetPlayerGuessItems(pOtherPlayerActor->GetId(), guessItems);
+			if (!guessItems.empty())
+			{
+				info = "\n current guess items to exclude : ";
+				PrintLogGuessInformation(info);
+			}
+			for (auto guessItem : guessItems)
+			{
+				eastl::shared_ptr<Actor> pItemActor(GameLogic::Get()->GetActor(guessItem.first).lock());
+
+				if (pItemActor->GetType() == "Weapon")
+				{
+					eastl::shared_ptr<WeaponPickup> pWeaponPickup =
+						pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
+
+					info = "weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ";
+					PrintLogGuessInformation(info);
+				}
+				else if (pItemActor->GetType() == "Ammo")
+				{
+					eastl::shared_ptr<AmmoPickup> pAmmoPickup =
+						pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
+
+					info = "ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ";
+					PrintLogGuessInformation(info);
+				}
+				else if (pItemActor->GetType() == "Armor")
+				{
+					eastl::shared_ptr<ArmorPickup> pArmorPickup =
+						pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
+
+					info = "armor " + eastl::to_string(pArmorPickup->GetCode()) + " ";
+					PrintLogGuessInformation(info);
+				}
+				else if (pItemActor->GetType() == "Health")
+				{
+					eastl::shared_ptr<HealthPickup> pHealthPickup =
+						pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
+
+					info = "health " + eastl::to_string(pHealthPickup->GetCode()) + " ";
+					PrintLogGuessInformation(info);
+				}
+			}
+
 			if (IsPlayerGuessUpdated(pOtherPlayerActor->GetId()))
 			{
 				if (!otherPlayerGuessState.plan.path.empty() &&
@@ -2059,6 +2201,8 @@ void QuakeAIManager::OnUpdate(unsigned long deltaMs)
 						//what i am guessing about the other player
 						NodePlan otherPlayerGuessPlan;
 						GetPlayerPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
+						otherPlayerGuessPlan = NodePlan(otherPlayerGuessPlan.node, PathingArcVec());
+
 						SetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
 						SetPlayerGuessState(pOtherPlayerActor->GetId(), pOtherPlayerActor);
 						SetPlayerGuessUpdated(pOtherPlayerActor->GetId(), false);
@@ -2076,13 +2220,11 @@ void QuakeAIManager::OnUpdate(unsigned long deltaMs)
 				{
 					RemovePlayerGuessItems(pOtherPlayerActor->GetId());
 
-					//no idea where the player is located take any random spawn position
-					Transform spawnTransform;
-					game->SelectSpawnPoint(currentPosition, spawnTransform);
-					PathingNode* otherPlayerNode = mPathingGraph->FindClosestNode(spawnTransform.GetTranslation());
-
 					//what i am guessing about the other player
-					otherPlayerGuessPlan = NodePlan(otherPlayerNode, PathingArcVec());
+					NodePlan otherPlayerGuessPlan;
+					GetPlayerPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
+					otherPlayerGuessPlan = NodePlan(otherPlayerGuessPlan.node, PathingArcVec());
+
 					SetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
 					SetPlayerGuessState(pOtherPlayerActor->GetId(), pOtherPlayerActor);
 					SetPlayerGuessUpdated(pOtherPlayerActor->GetId(), false);
@@ -2094,6 +2236,123 @@ void QuakeAIManager::OnUpdate(unsigned long deltaMs)
 					for (ActorId removeGuessItem : removeGuessItems)
 						guessItems.erase(removeGuessItem);
 					SetPlayerGuessItems(pOtherPlayerActor->GetId(), guessItems);
+				}
+			}
+
+			GetPlayerGuessState(pOtherPlayerActor->GetId(), otherPlayerGuessState);
+
+			info = "\n new minimax guess state ";
+			PrintLogGuessInformation(info);
+			if (otherPlayerGuessState.plan.node)
+			{
+				PrintLogGuessInformation("\n other player position : " +
+					eastl::to_string(otherPlayerGuessState.plan.node->GetPos()[0]) + " " +
+					eastl::to_string(otherPlayerGuessState.plan.node->GetPos()[1]) + " " +
+					eastl::to_string(otherPlayerGuessState.plan.node->GetPos()[2]) + " ");
+				PrintLogGuessInformation("\n other player plan cluster : " +
+					eastl::to_string(otherPlayerGuessState.plan.node->GetCluster()) + " ");
+			}
+			PrintLogGuessInformation("\n other player path id " + eastl::to_string(otherPlayerGuessState.plan.id) + " : ");
+			for (PathingArc* pathArc : otherPlayerGuessState.plan.path)
+				PrintLogGuessInformation(eastl::to_string(pathArc->GetNode()->GetId()) + " ");
+			PrintLogGuessInformation("\n other player heuristic : " + eastl::to_string(otherPlayerGuessState.heuristic) + " ");
+			if (otherPlayerGuessState.weapon != WP_NONE)
+			{
+				info = "weapon : " + eastl::to_string(otherPlayerGuessState.weapon) + " ";
+				PrintLogGuessInformation(info);
+
+				info = "damage : " +
+					eastl::to_string(otherPlayerGuessState.damage[otherPlayerGuessState.weapon - 1]) + " ";
+				PrintLogGuessInformation(info);
+			}
+			if (!otherPlayerGuessState.items.empty())
+				PrintLogGuessInformation("actors : ");
+			for (eastl::shared_ptr<Actor> pItemActor : otherPlayerGuessState.items)
+			{
+				if (pItemActor->GetType() == "Weapon")
+				{
+					eastl::shared_ptr<WeaponPickup> pWeaponPickup =
+						pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
+					PrintLogGuessInformation("weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ");
+				}
+				else if (pItemActor->GetType() == "Ammo")
+				{
+					eastl::shared_ptr<AmmoPickup> pAmmoPickup =
+						pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
+					PrintLogGuessInformation("ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ");
+				}
+				else if (pItemActor->GetType() == "Armor")
+				{
+					eastl::shared_ptr<ArmorPickup> pArmorPickup =
+						pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
+					PrintLogGuessInformation("armor " + eastl::to_string(pArmorPickup->GetCode()) + " ");
+				}
+				else if (pItemActor->GetType() == "Health")
+				{
+					eastl::shared_ptr<HealthPickup> pHealthPickup =
+						pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
+					PrintLogGuessInformation("health " + eastl::to_string(pHealthPickup->GetCode()) + " ");
+				}
+			}
+
+			GetPlayerGuessPlan(pOtherPlayerActor->GetId(), otherPlayerGuessPlan);
+
+			info = "\n new guess plan ";
+			PrintLogGuessInformation(info);
+			if (otherPlayerGuessPlan.node)
+			{
+				PrintLogGuessInformation("\n other player position : " +
+					eastl::to_string(otherPlayerGuessPlan.node->GetPos()[0]) + " " +
+					eastl::to_string(otherPlayerGuessPlan.node->GetPos()[1]) + " " +
+					eastl::to_string(otherPlayerGuessPlan.node->GetPos()[2]) + " ");
+				PrintLogGuessInformation("\n other player plan cluster : " +
+					eastl::to_string(otherPlayerGuessPlan.node->GetCluster()) + " ");
+			}
+			PrintLogGuessInformation("\n other player path id " + eastl::to_string(otherPlayerGuessPlan.id) + " : ");
+			for (PathingArc* pathArc : otherPlayerGuessPlan.path)
+				PrintLogGuessInformation(eastl::to_string(pathArc->GetNode()->GetId()) + " ");
+
+			GetPlayerGuessItems(pOtherPlayerActor->GetId(), guessItems);
+			if (!guessItems.empty())
+			{
+				info = "\n new guess items to exclude : ";
+				PrintLogGuessInformation(info);
+			}
+			for (auto guessItem : guessItems)
+			{
+				eastl::shared_ptr<Actor> pItemActor(GameLogic::Get()->GetActor(guessItem.first).lock());
+
+				if (pItemActor->GetType() == "Weapon")
+				{
+					eastl::shared_ptr<WeaponPickup> pWeaponPickup =
+						pItemActor->GetComponent<WeaponPickup>(WeaponPickup::Name).lock();
+
+					info = "weapon " + eastl::to_string(pWeaponPickup->GetCode()) + " ";
+					PrintLogGuessInformation(info);
+				}
+				else if (pItemActor->GetType() == "Ammo")
+				{
+					eastl::shared_ptr<AmmoPickup> pAmmoPickup =
+						pItemActor->GetComponent<AmmoPickup>(AmmoPickup::Name).lock();
+
+					info = "ammo " + eastl::to_string(pAmmoPickup->GetCode()) + " ";
+					PrintLogGuessInformation(info);
+				}
+				else if (pItemActor->GetType() == "Armor")
+				{
+					eastl::shared_ptr<ArmorPickup> pArmorPickup =
+						pItemActor->GetComponent<ArmorPickup>(ArmorPickup::Name).lock();
+
+					info = "armor " + eastl::to_string(pArmorPickup->GetCode()) + " ";
+					PrintLogGuessInformation(info);
+				}
+				else if (pItemActor->GetType() == "Health")
+				{
+					eastl::shared_ptr<HealthPickup> pHealthPickup =
+						pItemActor->GetComponent<HealthPickup>(HealthPickup::Name).lock();
+
+					info = "health " + eastl::to_string(pHealthPickup->GetCode()) + " ";
+					PrintLogGuessInformation(info);
 				}
 			}
 		}

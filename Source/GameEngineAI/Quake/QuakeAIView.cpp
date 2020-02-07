@@ -757,7 +757,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 									printf("\n fail arc id %u type %u node %u \n ",
 										mCurrentArc->GetId(), mCurrentArc->GetType(), mCurrentArc->GetNode()->GetId());
 
-									eastl::string error("fail arc id " +
+									eastl::string error("\n fail arc id " +
 										eastl::to_string(mCurrentArc->GetId()) + " type " +
 										eastl::to_string(mCurrentArc->GetType()) + " node " +
 										eastl::to_string(mCurrentArc->GetNode()->GetId()));
@@ -795,11 +795,31 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 
 								if (playerPathPlan.size() && playerState.plan.id != mCurrentPlanId)
 								{
+									Timer::RealTimeDate realTime = Timer::GetRealTimeAndDate();
+									aiManager->PrintLogPathingInformation("\n\n player " +
+										eastl::to_string(mPlayerId) + " time " +
+										eastl::to_string(realTime.Hour) + ":" +
+										eastl::to_string(realTime.Minute) + ":" +
+										eastl::to_string(realTime.Second) + "\n");
+									aiManager->PrintLogPathingInformation("\n old path : ");
+									for (PathingArc* pathArc : mCurrentPlan)
+									{
+										aiManager->PrintLogPathingInformation(
+											eastl::to_string(pathArc->GetNode()->GetId()) + " ");
+									}
+									aiManager->PrintLogPathingInformation("\n new plan path : ");
+									for (PathingArc* pathArc : playerPathPlan)
+									{
+										aiManager->PrintLogPathingInformation(
+											eastl::to_string(pathArc->GetNode()->GetId()) + " ");
+									}
+
 									PathingNodeVec searchNodes;
 									for (PathingArc* pathArc : playerPathPlan)
 										searchNodes.push_back(pathArc->GetNode());
 
-									PathPlan* plan = aiManager->GetPathingGraph()->FindPath(mCurrentNode, searchNodes);
+									PathPlan* plan = 
+										aiManager->GetPathingGraph()->FindPath(mCurrentNode, searchNodes, -1, 2.5f);
 									if (plan)
 									{
 										plan->ResetPath();
@@ -820,6 +840,13 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 											for (itPathArc++; itPathArc != playerPathPlan.end(); itPathArc++)
 												path.push_back((*itPathArc));
 
+											aiManager->PrintLogPathingInformation("\n fusion plan path : ");
+											for (PathingArc* pathArc : path)
+											{
+												aiManager->PrintLogPathingInformation(
+													eastl::to_string(pathArc->GetNode()->GetId()) + " ");
+											}
+
 											//printf("\n found new plan %u : ", mPlayerId);
 											mCurrentPlanId = playerState.plan.id;
 											aiManager->SetPlayerUpdated(mPlayerId, false);
@@ -835,12 +862,21 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 											for (itPathArc++; itPathArc != playerPathPlan.end(); itPathArc++)
 												path.push_back((*itPathArc));
 
+											aiManager->PrintLogPathingInformation("\n fusion search path : ");
+											for (PathingArc* pathArc : path)
+											{
+												aiManager->PrintLogPathingInformation(
+													eastl::to_string(pathArc->GetNode()->GetId()) + " ");
+											}
+
 											//printf("\n new plan %u : ", mPlayerId);
 											mCurrentPlanId = playerState.plan.id;
 											aiManager->SetPlayerUpdated(mPlayerId, false);
 										}
 										else if (!mCurrentPlan.empty())
 										{
+											aiManager->PrintLogPathingInformation("\n same old path");
+
 											path = mCurrentPlan;
 										}
 
@@ -875,7 +911,18 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 								}
 								else
 								{
-									PathingNode* currentNode = mCurrentNode;
+									mCurrentNode = currentNode;
+									NodePlan playerPlan(mCurrentNode, mCurrentPlan);
+									aiManager->SetPlayerPlan(mPlayerId, playerPlan);
+
+									Timer::RealTimeDate realTime = Timer::GetRealTimeAndDate();
+									aiManager->PrintLogPathingInformation("\n player " +
+										eastl::to_string(mPlayerId) + " time " +
+										eastl::to_string(realTime.Hour) + ":" +
+										eastl::to_string(realTime.Minute) + ":" +
+										eastl::to_string(realTime.Second));
+									aiManager->PrintLogPathingInformation("\n random path ");
+
 									if (mGoalNode == NULL || mGoalNode == currentNode)
 									{
 										//printf("\n random node %u : ", mPlayerId);
@@ -904,8 +951,6 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 										PathingCluster* currentCluster = currentNode->FindCluster(GAT_JUMP, mGoalNode);
 										if (currentCluster != NULL)
 										{
-											NodePlan playerPlan(currentNode, mCurrentPlan);
-											aiManager->SetPlayerPlan(mPlayerId, playerPlan);
 											PathingArc* clusterArc = currentNode->FindArc(currentCluster->GetNode());
 											PathingNode* clusterNode = clusterArc->GetNode();
 											unsigned int clusterArcType = clusterArc->GetType();

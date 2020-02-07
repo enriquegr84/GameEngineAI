@@ -378,6 +378,8 @@ protected:
 	void PrintLogError(eastl::string log);
 	void PrintLogInformation(eastl::string log);
 	void PrintLogInformationDetails(eastl::string log);
+	void PrintLogPathingInformation(eastl::string log);
+	void PrintLogGuessInformation(eastl::string log);
 
 	float CalculateHeuristicItems(NodeState& playerState);
 	void CalculateHeuristic(NodeState& playerState, NodeState& otherPlayerState);
@@ -398,6 +400,8 @@ private:
 	std::ofstream mLogError;
 	std::ofstream mLogInformation;
 	std::ofstream mLogInformationDetails;
+	std::ofstream mLogPathingInformation;
+	std::ofstream mLogGuessInformation;
 
 	void SimulateJump(PathingNode* pNode);
 	void SimulateMovement(PathingNode* pNode);
