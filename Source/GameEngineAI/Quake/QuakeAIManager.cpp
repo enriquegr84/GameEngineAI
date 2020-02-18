@@ -999,26 +999,31 @@ void QuakeAIManager::DetectActor(eastl::shared_ptr<PlayerActor> pPlayerActor, ea
 void QuakeAIManager::PrintLogError(eastl::string error)
 {
 	mLogError << error.c_str();
+	mLogError.flush();
 }
 
 void QuakeAIManager::PrintLogInformation(eastl::string info)
 {
 	mLogInformation << info.c_str();
+	mLogInformation.flush();
 }
 
 void QuakeAIManager::PrintLogInformationDetails(eastl::string info)
 {
 	mLogInformationDetails << info.c_str();
+	mLogInformationDetails.flush();
 }
 
 void QuakeAIManager::PrintLogPathingInformation(eastl::string info)
 {
 	mLogPathingInformation << info.c_str();
+	mLogPathingInformation.flush();
 }
 
 void QuakeAIManager::PrintLogGuessInformation(eastl::string info)
 {
 	mLogGuessInformation << info.c_str();
+	mLogGuessInformation.flush();
 }
 
 float QuakeAIManager::CalculateHeuristicItems(NodeState& playerState)

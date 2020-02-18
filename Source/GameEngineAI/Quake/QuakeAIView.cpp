@@ -593,7 +593,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 			{
 				do
 				{
-					PathingCluster* currentCluster = mCurrentNode->FindCluster(GAT_JUMP, mGoalNode);
+					PathingCluster* currentCluster = mCurrentNode->FindCluster(GAT_MOVE, mGoalNode);
 					if (currentCluster != NULL)
 					{
 						PathingArc* clusterArc = mCurrentNode->FindArc(currentCluster->GetNode());
@@ -620,7 +620,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 					//printf("\n random trigger nodes %u : ", mPlayerId);
 					do
 					{
-						PathingCluster* currentCluster = currentNode->FindCluster(GAT_JUMP, mGoalNode);
+						PathingCluster* currentCluster = currentNode->FindCluster(GAT_MOVE, mGoalNode);
 						PathingArc* clusterArc = currentNode->FindArc(currentCluster->GetNode());
 						currentNode = clusterArc->GetNode();
 						//printf("%u ", currentNode->GetId());
@@ -757,10 +757,10 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 									printf("\n fail arc id %u type %u node %u \n ",
 										mCurrentArc->GetId(), mCurrentArc->GetType(), mCurrentArc->GetNode()->GetId());
 
-									eastl::string error("\n fail arc id " +
+									eastl::string error("fail arc id " +
 										eastl::to_string(mCurrentArc->GetId()) + " type " +
 										eastl::to_string(mCurrentArc->GetType()) + " node " +
-										eastl::to_string(mCurrentArc->GetNode()->GetId()));
+										eastl::to_string(mCurrentArc->GetNode()->GetId()) + "\n");
 									aiManager->PrintLogError(error);
 									LogInformation(error);
 								}
@@ -819,7 +819,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 										searchNodes.push_back(pathArc->GetNode());
 
 									PathPlan* plan = 
-										aiManager->GetPathingGraph()->FindPath(mCurrentNode, searchNodes, -1, 2.5f);
+										aiManager->GetPathingGraph()->FindPath(mCurrentNode, searchNodes, GAT_JUMP, 2.0f);
 									if (plan)
 									{
 										plan->ResetPath();
@@ -927,7 +927,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 									{
 										//printf("\n random node %u : ", mPlayerId);
 										PathingClusterVec clusterNodes;
-										currentNode->GetClusters(GAT_JUMP, clusterNodes);
+										currentNode->GetClusters(GAT_MOVE, clusterNodes);
 
 										// choose a random cluster
 										do
@@ -948,7 +948,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 									if (mGoalNode != NULL)
 									{
 										float minPosDiff = FLT_MAX;
-										PathingCluster* currentCluster = currentNode->FindCluster(GAT_JUMP, mGoalNode);
+										PathingCluster* currentCluster = currentNode->FindCluster(GAT_MOVE, mGoalNode);
 										if (currentCluster != NULL)
 										{
 											PathingArc* clusterArc = currentNode->FindArc(currentCluster->GetNode());
@@ -967,7 +967,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 											//printf("\n new plan %u : ", mPlayerId);
 											do
 											{
-												currentCluster = currentNode->FindCluster(GAT_JUMP, mGoalNode);
+												currentCluster = currentNode->FindCluster(GAT_MOVE, mGoalNode);
 												clusterArc = currentNode->FindArc(currentCluster->GetNode());
 												currentNode = clusterArc->GetNode();
 												//printf("%u ", currentNode->GetId());
@@ -1086,7 +1086,7 @@ void QuakeAIView::OnUpdate(unsigned int timeMs, unsigned long deltaMs)
 						Matrix4x4<float> pitchRotation = Rotation<4, float>(
 							AxisAngle<4, float>(Vector4<float>::Unit(ROLL), mPitch * (float)GE_C_DEG_TO_RAD));
 
-						//smoothing camera rotation
+						//smoothing rotation
 						if (abs(mYawSmooth - mYaw) < 90)
 						{
 							if (mYaw - mYawSmooth > 180)
