@@ -420,7 +420,7 @@ void QuakeLogic::JumpActorDelegate(BaseEventDataPtr pEventData)
 			Transform cameraTransform = camera->GetAbsoluteTransform();
 
 			// take into consideration within a certain radius
-			if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+			if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 			{
 				// play jumppad sound
 				EventManager::Get()->TriggerEvent(
@@ -441,7 +441,7 @@ void QuakeLogic::JumpActorDelegate(BaseEventDataPtr pEventData)
 				Transform cameraTransform = camera->GetAbsoluteTransform();
 
 				// take into consideration within a certain radius
-				if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+				if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 400.f)
 				{
 					// play jump sound
 					EventManager::Get()->TriggerEvent(
@@ -496,7 +496,7 @@ void QuakeLogic::TeleportActorDelegate(BaseEventDataPtr pEventData)
 			Transform cameraTransform = camera->GetAbsoluteTransform();
 
 			// take into consideration within a certain radius
-			if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+			if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 			{
 				// play teleporter sound
 				EventManager::Get()->TriggerEvent(
@@ -1533,7 +1533,7 @@ void Die(int damage, MeansOfDeath meansOfDeath,
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play pain sound
 		EventManager::Get()->TriggerEvent(
@@ -1772,7 +1772,7 @@ void Damage(int damage, int dflags, int mod,
 			Transform cameraTransform = camera->GetAbsoluteTransform();
 
 			// take into consideration within a certain radius
-			if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+			if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 			{
 				if (target->GetState().stats[STAT_HEALTH] < 25)
 				{
@@ -1950,7 +1950,7 @@ void QuakeLogic::GauntletAttack(
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play attack sound
 		EventManager::Get()->TriggerEvent(
@@ -2031,7 +2031,7 @@ void QuakeLogic::BulletFire(
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play firing sound
 		EventManager::Get()->TriggerEvent(
@@ -2169,7 +2169,7 @@ void QuakeLogic::ShotgunFire(
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play firing sound
 		EventManager::Get()->TriggerEvent(
@@ -2246,7 +2246,7 @@ void QuakeLogic::GrenadeLauncherFire(
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play firing sound
 		EventManager::Get()->TriggerEvent(
@@ -2310,7 +2310,7 @@ void QuakeLogic::RocketLauncherFire(
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play firing sound
 		EventManager::Get()->TriggerEvent(
@@ -2375,7 +2375,7 @@ void QuakeLogic::PlasmagunFire(
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play firing sound
 		EventManager::Get()->TriggerEvent(
@@ -2404,7 +2404,7 @@ void QuakeLogic::RailgunFire(const eastl::shared_ptr<PlayerActor>& player,
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play firing sound
 		EventManager::Get()->TriggerEvent(
@@ -2494,7 +2494,7 @@ void QuakeLogic::LightningFire(const eastl::shared_ptr<PlayerActor>& player,
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play firing sound
 		EventManager::Get()->TriggerEvent(
@@ -2837,7 +2837,7 @@ int PickupAmmo(const eastl::shared_ptr<PlayerActor>& player, const eastl::shared
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		EventManager::Get()->TriggerEvent(
 			eastl::make_shared<EventDataPlaySound>("audio/quake/sound/misc/am_pkup.wav"));
@@ -2864,7 +2864,7 @@ int PickupWeapon(const eastl::shared_ptr<PlayerActor>& player, const eastl::shar
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play weapon pickup sound
 		EventManager::Get()->TriggerEvent(
@@ -2894,7 +2894,7 @@ int PickupHealth(const eastl::shared_ptr<PlayerActor>& player, const eastl::shar
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play health pickup sound
 		if (health->GetCode() == 1)
@@ -2936,7 +2936,7 @@ int PickupArmor(const eastl::shared_ptr<PlayerActor>& player, const eastl::share
 	Transform cameraTransform = camera->GetAbsoluteTransform();
 
 	// take into consideration within a certain radius
-	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 700.f)
+	if (Length(cameraTransform.GetTranslation() - pPlayerTransform->GetPosition()) <= 900.f)
 	{
 		// play armor pickup sound
 		if (armor->GetCode() == 1)

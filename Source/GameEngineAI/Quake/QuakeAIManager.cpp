@@ -1010,20 +1010,20 @@ void QuakeAIManager::PrintLogInformation(eastl::string info)
 
 void QuakeAIManager::PrintLogInformationDetails(eastl::string info)
 {
-	mLogInformationDetails << info.c_str();
-	mLogInformationDetails.flush();
+	//mLogInformationDetails << info.c_str();
+	//mLogInformationDetails.flush();
 }
 
 void QuakeAIManager::PrintLogPathingInformation(eastl::string info)
 {
-	mLogPathingInformation << info.c_str();
-	mLogPathingInformation.flush();
+	//mLogPathingInformation << info.c_str();
+	//mLogPathingInformation.flush();
 }
 
 void QuakeAIManager::PrintLogGuessInformation(eastl::string info)
 {
-	mLogGuessInformation << info.c_str();
-	mLogGuessInformation.flush();
+	//mLogGuessInformation << info.c_str();
+	//mLogGuessInformation.flush();
 }
 
 float QuakeAIManager::CalculateHeuristicItems(NodeState& playerState)

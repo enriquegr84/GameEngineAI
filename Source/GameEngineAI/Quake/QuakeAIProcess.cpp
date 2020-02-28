@@ -333,7 +333,7 @@ void QuakeAIProcess::ConstructActorPath(NodeState& playerState,
 		maxPathWeight += currentArc->GetWeight();
 	}
 	//add extra time
-	maxPathWeight += maxPathWeight * 0.15f;
+	maxPathWeight += maxPathWeight * 0.4f;
 	mAIManager->FindPath(playerState, playerCluster, playerActorPlan, mExcludeActors, maxPathWeight);
 }
 
