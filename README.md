@@ -15,6 +15,6 @@ following main development phases:
   tree and are represented numerically as statistics.
 
 We will create and update the documentation in the wiki section of this repository. The documentation is momentarily saved 
-as pdf and includes videos. It can be accessed through the following link
+as pdf and can be accessed through the following link
 
 Unfortunately, we couldn’t get permission to upload the required Quake assets which means that the game can’t be executed.
