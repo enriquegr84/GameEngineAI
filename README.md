@@ -17,4 +17,5 @@ following main development phases:
 We will create and update the documentation in the wiki section of this repository. The documentation is momentarily saved 
 as pdf and can be accessed through the following link https://www.dropbox.com/s/dhhi17nt1lyz0gm/GameEngineAI.pdf?dl=0
 
-Unfortunately, we couldn’t get permission to upload the required Quake assets which means that the game can’t be executed.
+Unfortunately, we couldn’t get permission to upload the required Quake assets which means that the game can’t be executed but
+the documentation comes with videos that show what the A.I. is capable of.
