@@ -1,7 +1,4 @@
-# GameEngineAI
-
-Unlike most Game Engines which are made for either professional use or as hobby project, we introduce a new engine 
-for educational purpose. Despite of the traditional educational system in which a professor takes the responsibility 
+# Game Engine AI
 
 Game engine A.I. is a personal research project aimed to find a challenging system that we can apply on action games, 
 particularly for shooters. We analyze the current state of the art of AI techniques that have been successfully applied 
