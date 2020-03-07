@@ -5,16 +5,16 @@ particularly for shooters. We analyze the current state of the art of AI techniq
 on videogames and introduce a new approach that has been implemented on a modified version of the Quake 3 Arena using 
 the following framework https://github.com/enriquegr84/GameEngineTutorial. This new approach has been separated in the 
 following main development phases: 
+
 -	Modeling phase. We define the data structures necessary to represent a discrete approximation of the virtual world and 
   implement algorithms that create the discrete world via physics simulation.
 -	Decision-making phase. We implement a runtime minimax algorithm for an NPC duel combat that simultaneously simulates both 
   players actions, and the NPC basic behavior to carry out the decision-making plans.  
 -	Challenging phase. We propose a system that replace the most optimal heuristics of the decision-making algorithm with the 
   most challenging heuristics based on the player skills. The player skills are studied using a less constrained minimax 
-  search 
-  tree and are represented numerically as statistics.
+  search tree and are represented numerically as statistics.
 
 We will create and update the documentation in the wiki section of this repository. The documentation is momentarily saved 
-as pdf and can be accessed through the following link
+as pdf and can be accessed through the following link https://www.dropbox.com/s/dhhi17nt1lyz0gm/GameEngineAI.pdf?dl=0
 
 Unfortunately, we couldn’t get permission to upload the required Quake assets which means that the game can’t be executed.
